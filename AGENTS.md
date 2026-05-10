@@ -2,7 +2,7 @@
 
 ## Project Snapshot
 
-Laravel 13 app for a homework-scale hospital asset-tracking system. The database schema, Eloquent domain model layer, and first asset CRUD REST API are now in place, while browser-facing views are still mostly stock scaffold.
+Laravel 13 app for a homework-scale hospital asset-tracking system. The database schema, Eloquent domain model layer, asset CRUD REST API, and QR label REST API are now in place, while browser-facing views are still mostly stock scaffold.
 
 ## Stack
 
@@ -15,16 +15,18 @@ Laravel 13 app for a homework-scale hospital asset-tracking system. The database
 ## Current App State
 
 - `routes/web.php` still only defines `/` and returns the default `welcome` view.
-- `routes/api.php` now exposes asset CRUD endpoints through `Route::apiResource('assets', AssetController::class)`.
+- `routes/api.php` now exposes asset CRUD endpoints and QR label endpoints for asset label generation/resolution.
 - `resources/views/welcome.blade.php` is still the stock Laravel welcome page.
 - `app/Models` now contains the hospital asset-tracking Eloquent models.
 - `app/Enums` now contains PHP backed enums for role, status, source, type, severity, and geofence fields.
 - `app/Http` now has the asset API controller, request validation classes, and JSON resource for asset responses.
+- `app/Services/QrCodeValueGenerator.php` generates unique UUID values for QR labels.
 - `resources/js/app.js` is effectively empty.
 - `resources/css/app.css` is the default Tailwind v4 entry file.
 - `tests/Feature/ModelLayerTest.php` verifies the model-layer relationships, casts, helpers, and query scopes.
 - `tests/Feature/AssetCrudApiTest.php` verifies asset CRUD API behavior, validation, filters, JSON shape, and soft deletes.
-- The main implemented product work so far is schema design, Eloquent models, and asset CRUD API endpoints.
+- `tests/Feature/AssetQrLabelApiTest.php` verifies QR label generation, lookup, regeneration, deletion, validation, and conflict behavior.
+- The main implemented product work so far is schema design, Eloquent models, asset CRUD API endpoints, and QR label API endpoints.
 
 ## Data Layer
 
@@ -118,6 +120,29 @@ Implementation notes:
 - Delete uses the existing `Asset` soft delete behavior and returns `204 No Content`.
 - Authentication/authorization is intentionally not enforced on these endpoints yet.
 
+## QR Label API
+
+QR label endpoints are available under `/api/assets/{asset}/qr-label` and `/api/qr-labels/{qrCodeValue}`:
+
+- `POST /api/assets/{asset}/qr-label`
+- `GET /api/assets/{asset}/qr-label`
+- `PATCH /api/assets/{asset}/qr-label`
+- `DELETE /api/assets/{asset}/qr-label`
+- `GET /api/qr-labels/{qrCodeValue}`
+
+Implementation notes:
+
+- Controller: `App\Http\Controllers\Api\AssetQrLabelController`
+- Resource: `AssetQrLabelResource`
+- Requests: `RegenerateAssetQrLabelRequest` and `DeleteAssetQrLabelRequest`
+- Service: `QrCodeValueGenerator`
+- QR values are UUID strings stored in the existing unique nullable `assets.qr_code_value` column.
+- The backend returns only JSON UUID/context payloads; QR image rendering and print layout are left to the frontend.
+- QR label responses include the UUID plus asset, category, current location, current map, label-state flags, and `updated_at`.
+- Generating a QR label for an asset that already has one returns `409 Conflict`.
+- Regeneration/deletion require confirmation fields because printed labels may become stale.
+- Authentication/authorization is intentionally not enforced on these endpoints yet.
+
 ## Current Domain Shape
 
 The schema is aimed at a homework-scale hospital asset management system that supports:
@@ -148,18 +173,18 @@ Implementation choices worth knowing:
 - `composer dev` runs the normal local stack: Laravel server, queue listener, log tailing with Pail, and Vite.
 - Vendor dependencies are already present, so `composer install` has likely been run at least once.
 - `php artisan migrate` succeeds against the current schema.
-- `php artisan test` currently passes: 12 tests, 153 assertions.
+- `php artisan test` currently passes: 19 tests, 232 assertions.
 
 ## Likely Direction
 
 This now looks like a backend-first starting point for a hospital asset-tracking app. A future agent can safely assume:
 
-- the database schema, Eloquent domain model layer, and first asset CRUD API exist
+- the database schema, Eloquent domain model layer, first asset CRUD API, and QR label API exist
 - policies, seed data, richer workflows, and UI are mostly not built yet
 - custom API routing has started with asset CRUD, but web routing is still stock
 - there is no frontend architecture yet beyond Vite + Tailwind
-- tests cover model behavior and asset API behavior, but there are no UI tests yet
-- the next likely layer is supporting data and workflows: factories, seeders, policies/auth, category/location APIs, movement flows, and reporting/tracking UI
+- tests cover model behavior, asset API behavior, and QR label API behavior, but there are no UI tests yet
+- the next likely layer is supporting data and workflows: factories, seeders, policies/auth, category/location APIs, movement flows, printable-label UI, and reporting/tracking UI
 
 ## Good First Read Files
 
@@ -168,14 +193,18 @@ This now looks like a backend-first starting point for a hospital asset-tracking
 - `routes/web.php`
 - `routes/api.php`
 - `app/Http/Controllers/Api/AssetController.php`
+- `app/Http/Controllers/Api/AssetQrLabelController.php`
 - `app/Http/Requests/StoreAssetRequest.php`
 - `app/Http/Resources/AssetResource.php`
+- `app/Http/Resources/AssetQrLabelResource.php`
+- `app/Services/QrCodeValueGenerator.php`
 - `app/Models/User.php`
 - `app/Models/Asset.php`
 - `app/Models/Location.php`
 - `app/Enums/AssetStatus.php`
 - `tests/Feature/ModelLayerTest.php`
 - `tests/Feature/AssetCrudApiTest.php`
+- `tests/Feature/AssetQrLabelApiTest.php`
 - `database/migrations/2026_05_04_000007_create_assets_table.php`
 - `database/migrations/2026_05_04_000008_create_asset_movements_table.php`
 - `database/migrations/2026_05_04_000009_create_asset_tracking_events_table.php`
