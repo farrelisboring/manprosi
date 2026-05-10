@@ -2,7 +2,7 @@
 
 ## Project Snapshot
 
-Laravel 13 app that is still light on application code, but no longer just a stock scaffold. The main custom work so far is in the database layer for a hospital asset-tracking system.
+Laravel 13 app for a homework-scale hospital asset-tracking system. The database schema, Eloquent domain model layer, and first asset CRUD REST API are now in place, while browser-facing views are still mostly stock scaffold.
 
 ## Stack
 
@@ -15,12 +15,16 @@ Laravel 13 app that is still light on application code, but no longer just a sto
 ## Current App State
 
 - `routes/web.php` still only defines `/` and returns the default `welcome` view.
+- `routes/api.php` now exposes asset CRUD endpoints through `Route::apiResource('assets', AssetController::class)`.
 - `resources/views/welcome.blade.php` is still the stock Laravel welcome page.
-- `app/` is still nearly untouched: only the base controller, `User` model, and empty `AppServiceProvider` are present.
+- `app/Models` now contains the hospital asset-tracking Eloquent models.
+- `app/Enums` now contains PHP backed enums for role, status, source, type, severity, and geofence fields.
+- `app/Http` now has the asset API controller, request validation classes, and JSON resource for asset responses.
 - `resources/js/app.js` is effectively empty.
 - `resources/css/app.css` is the default Tailwind v4 entry file.
-- `tests/` still only contains the default example feature/unit tests.
-- The main implemented product work so far is schema design and migrations, not routes/controllers/views yet.
+- `tests/Feature/ModelLayerTest.php` verifies the model-layer relationships, casts, helpers, and query scopes.
+- `tests/Feature/AssetCrudApiTest.php` verifies asset CRUD API behavior, validation, filters, JSON shape, and soft deletes.
+- The main implemented product work so far is schema design, Eloquent models, and asset CRUD API endpoints.
 
 ## Data Layer
 
@@ -46,6 +50,74 @@ Custom schema has been added for the hospital asset-tracking domain:
 
 `DatabaseSeeder` still only seeds a single default `Test User`.
 
+## Model Layer
+
+Eloquent models now exist for:
+
+- `AssetCategory`
+- `Location`
+- `LocationMap`
+- `Asset`
+- `AssetMovement`
+- `AssetTrackingEvent`
+- `AssetGeofence`
+- `AssetAlert`
+- `DamageReport`
+- `RepairUpdate`
+
+The existing `User` model now includes:
+
+- `role` in fillable attributes
+- `UserRole` enum casting
+- role helpers: `isStaff()`, `isManager()`, `isNurse()`
+- relationships for created/updated assets, recorded movements, acknowledged alerts, reported damage reports, and repair updates
+
+Domain enums live in `app/Enums`:
+
+- `UserRole`
+- `AssetStatus`
+- `MovementSource`
+- `TrackingSource`
+- `TrackingEventType`
+- `GeofenceRuleType`
+- `AlertType`
+- `AlertStatus`
+- `DamageSeverity`
+- `DamageStatus`
+- `RepairUpdateType`
+
+Model implementation notes:
+
+- Laravel 13-style `#[Fillable]` attributes are used instead of legacy `$fillable`.
+- `AssetCategory`, `Location`, and `Asset` use soft deletes.
+- String status/type columns are cast to PHP backed enums.
+- Location hierarchy uses `parent` / `children`.
+- Asset placement uses `currentLocation`, `currentMap`, `position_x`, and `position_y`.
+- Movement history uses `fromLocation`, `toLocation`, and `movedByUser`.
+- Alert, damage, and repair models keep nullable user/location/geofence/tracking-event relationships explicit.
+- Models provide lightweight query scopes for search, status filters, room/location filters, active records, and recent-first ordering.
+
+## Asset CRUD API
+
+Asset CRUD endpoints are available under `/api/assets`:
+
+- `GET /api/assets`
+- `POST /api/assets`
+- `GET /api/assets/{asset}`
+- `PUT/PATCH /api/assets/{asset}`
+- `DELETE /api/assets/{asset}`
+
+Implementation notes:
+
+- Controller: `App\Http\Controllers\Api\AssetController`
+- Requests: `StoreAssetRequest` and `UpdateAssetRequest`
+- Resource: `AssetResource`
+- Responses are JSON API resources, not raw Eloquent models.
+- Listing supports `search`, `category_id`, `current_location_id`, and `status` query filters.
+- Create/update validation follows the existing migrations: required `asset_code`, `name`, and `category_id`; unique asset code/barcode/QR/RFID values; nullable location/map/coordinate fields; enum-backed status validation.
+- Delete uses the existing `Asset` soft delete behavior and returns `204 No Content`.
+- Authentication/authorization is intentionally not enforced on these endpoints yet.
+
 ## Current Domain Shape
 
 The schema is aimed at a homework-scale hospital asset management system that supports:
@@ -67,7 +139,8 @@ Implementation choices worth knowing:
 
 - The `User` model uses Laravel 13-style PHP attributes like `#[Fillable]` and `#[Hidden]` instead of the older `$fillable` / `$hidden` properties.
 - The welcome page conditionally shows login/register links if those routes exist, but no auth scaffolding appears to be installed yet.
-- The `User` model has not yet been updated to reflect the new `role` column in code; only the migration exists so far.
+- Sanctum has been added to the dependency/migration/config layer, but asset CRUD endpoints currently remain unauthenticated for the deadline milestone.
+- Tests configure the compiled Blade view path to `sys_get_temp_dir()` in `tests/TestCase.php` because the local environment had trouble writing compiled test views/log output in the default path.
 
 ## Tooling / Workflow Hints
 
@@ -75,24 +148,34 @@ Implementation choices worth knowing:
 - `composer dev` runs the normal local stack: Laravel server, queue listener, log tailing with Pail, and Vite.
 - Vendor dependencies are already present, so `composer install` has likely been run at least once.
 - `php artisan migrate` succeeds against the current schema.
-- `php artisan test` currently passes, but only the default bootstrap-level tests exist.
+- `php artisan test` currently passes: 12 tests, 153 assertions.
 
 ## Likely Direction
 
 This now looks like a backend-first starting point for a hospital asset-tracking app. A future agent can safely assume:
 
-- the database/domain model exists, but Eloquent models, policies, seed data, and workflows are mostly not built yet
-- there is no custom routing structure yet
+- the database schema, Eloquent domain model layer, and first asset CRUD API exist
+- policies, seed data, richer workflows, and UI are mostly not built yet
+- custom API routing has started with asset CRUD, but web routing is still stock
 - there is no frontend architecture yet beyond Vite + Tailwind
-- tests currently verify framework bootstrapping more than business behavior
-- the next likely layer is app code on top of the new schema: models, relations, factories, seeders, CRUD flows, and reporting/tracking UI
+- tests cover model behavior and asset API behavior, but there are no UI tests yet
+- the next likely layer is supporting data and workflows: factories, seeders, policies/auth, category/location APIs, movement flows, and reporting/tracking UI
 
 ## Good First Read Files
 
 - `composer.json`
 - `package.json`
 - `routes/web.php`
+- `routes/api.php`
+- `app/Http/Controllers/Api/AssetController.php`
+- `app/Http/Requests/StoreAssetRequest.php`
+- `app/Http/Resources/AssetResource.php`
 - `app/Models/User.php`
+- `app/Models/Asset.php`
+- `app/Models/Location.php`
+- `app/Enums/AssetStatus.php`
+- `tests/Feature/ModelLayerTest.php`
+- `tests/Feature/AssetCrudApiTest.php`
 - `database/migrations/2026_05_04_000007_create_assets_table.php`
 - `database/migrations/2026_05_04_000008_create_asset_movements_table.php`
 - `database/migrations/2026_05_04_000009_create_asset_tracking_events_table.php`
