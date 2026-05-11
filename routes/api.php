@@ -1,7 +1,9 @@
 <?php
 
 use App\Http\Controllers\Api\AssetController;
+use App\Http\Controllers\Api\AssetMovementController;
 use App\Http\Controllers\Api\AssetQrLabelController;
+use App\Http\Controllers\Api\DamageReportController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
@@ -10,6 +12,11 @@ Route::get('/user', function (Request $request) {
 })->middleware('auth:sanctum');
 
 Route::apiResource('assets', AssetController::class);
+Route::apiResource('damage-reports', DamageReportController::class);
+
+Route::get('/assets/{asset}/movements', [AssetMovementController::class, 'index']);
+Route::post('/assets/{asset}/movements', [AssetMovementController::class, 'store']);
+Route::get('/asset-movements/{assetMovement}', [AssetMovementController::class, 'show']);
 
 Route::post('/assets/{asset}/qr-label', [AssetQrLabelController::class, 'store']);
 Route::get('/assets/{asset}/qr-label', [AssetQrLabelController::class, 'show']);
