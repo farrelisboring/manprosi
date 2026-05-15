@@ -21,10 +21,7 @@ class AssetController extends Controller
     {
         $assets = Asset::query()
             ->with(['category', 'currentLocation', 'currentMap'])
-            ->search($request->string('search')->toString())
-            ->when($request->filled('category_id'), fn ($query) => $query->forCategory((int) $request->integer('category_id')))
-            ->when($request->filled('current_location_id'), fn ($query) => $query->atLocation((int) $request->integer('current_location_id')))
-            ->when($request->filled('status'), fn ($query) => $query->withStatus($request->string('status')->toString()))
+            ->withFilters($request->only(['search', 'category_id', 'current_location_id', 'status']))
             ->latest()
             ->paginate(15)
             ->withQueryString();

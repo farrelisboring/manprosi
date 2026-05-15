@@ -3,12 +3,14 @@
 use App\Http\Controllers\Web\AssetController;
 use App\Http\Controllers\Web\AssetMovementController;
 use App\Http\Controllers\Web\AssetQrLabelController;
+use App\Http\Controllers\Web\AssetSearchController;
 use App\Http\Controllers\Web\DashboardController;
 use App\Http\Controllers\Web\LocationAssetController;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', DashboardController::class)->name('dashboard');
 
+Route::get('/assets/search', AssetSearchController::class)->name('web.asset-search.index');
 Route::resource('assets', AssetController::class)->names('web.assets');
 Route::get('/locations/assets', [LocationAssetController::class, 'index'])->name('web.location-assets.index');
 Route::get('/locations/assets/panel', [LocationAssetController::class, 'refresh'])->name('web.location-assets.refresh');

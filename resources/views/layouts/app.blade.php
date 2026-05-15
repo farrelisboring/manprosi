@@ -22,6 +22,12 @@
                         Dashboard
                     </a>
                     <a
+                        class="rounded-md px-3 py-2 font-medium transition {{ request()->routeIs('web.asset-search.*') ? 'bg-violet-100 text-violet-900' : 'text-gray-700 hover:bg-gray-100 hover:text-gray-950' }}"
+                        href="{{ route('web.asset-search.index') }}"
+                    >
+                        Search
+                    </a>
+                    <a
                         class="rounded-md px-3 py-2 font-medium transition {{ request()->routeIs('web.assets.*') ? 'bg-sky-100 text-sky-900' : 'text-gray-700 hover:bg-gray-100 hover:text-gray-950' }}"
                         href="{{ route('web.assets.index') }}"
                     >
