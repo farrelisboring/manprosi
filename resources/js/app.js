@@ -53,15 +53,17 @@ const setupMapDependentAssetForms = () => {
     });
 };
 
-const setupTrackingPollers = () => {
-    const pollers = document.querySelectorAll('[data-tracking-poller]');
+const setupPollers = () => {
+    const pollers = document.querySelectorAll('[data-poller]');
 
     pollers.forEach((poller) => {
         const toggle = poller.querySelector('[data-poll-toggle]');
-        const container = document.querySelector('[data-tracking-panel-container]');
         const refreshUrl = poller.getAttribute('data-refresh-url');
+        const refreshContainer = poller.getAttribute('data-refresh-container');
+        const container = refreshContainer ? document.querySelector(refreshContainer) : null;
+        const isDisabled = poller.getAttribute('data-poll-disabled') === 'true';
 
-        if (!toggle || !container || !refreshUrl) {
+        if (!toggle || !container || !refreshUrl || isDisabled) {
             return;
         }
 
@@ -115,5 +117,5 @@ const setupTrackingPollers = () => {
 
 document.addEventListener('DOMContentLoaded', () => {
     setupMapDependentAssetForms();
-    setupTrackingPollers();
+    setupPollers();
 });

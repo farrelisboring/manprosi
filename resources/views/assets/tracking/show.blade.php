@@ -71,7 +71,7 @@
                 </div>
             </form>
 
-            <div class="flex items-center justify-between gap-3 rounded-lg border border-gray-200 bg-gray-50 px-4 py-3" data-tracking-poller data-refresh-url="{{ $refreshUrl }}">
+            <div class="flex items-center justify-between gap-3 rounded-lg border border-gray-200 bg-gray-50 px-4 py-3" data-poller data-refresh-url="{{ $refreshUrl }}" data-refresh-container="[data-tracking-panel-container]">
                 <div>
                     <p class="text-sm font-medium text-gray-900">Auto-refresh</p>
                     <p class="text-xs text-gray-600">Refresh placement and movement history every 5 seconds.</p>
