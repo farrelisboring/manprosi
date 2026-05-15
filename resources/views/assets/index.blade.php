@@ -1,0 +1,131 @@
+@extends('layouts.app')
+
+@section('title', 'Assets | Hospital Asset Manager')
+
+@section('content')
+    <section class="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
+        <div>
+            <p class="text-sm font-medium text-sky-700">Asset inventory</p>
+            <h1 class="text-3xl font-semibold text-gray-950">Hospital assets</h1>
+            <p class="mt-2 text-sm text-gray-600">The Blade UI is now the primary place to browse, create, and maintain asset records.</p>
+        </div>
+
+        <a class="rounded-md bg-gray-950 px-4 py-2 text-sm font-medium text-white hover:bg-gray-800" href="{{ route('web.assets.create') }}">
+            Add asset
+        </a>
+    </section>
+
+    <section class="mt-8 rounded-lg border border-gray-200 bg-white p-5 shadow-sm">
+        <form action="{{ route('web.assets.index') }}" class="grid gap-4 lg:grid-cols-[2fr_1fr_1fr_1fr_auto]">
+            <div>
+                <label class="block text-sm font-medium text-gray-900" for="search">Search</label>
+                <input class="mt-2 block w-full rounded-md border border-gray-300 bg-white px-3 py-2 text-sm text-gray-900 focus:border-sky-500 focus:outline-none focus:ring-2 focus:ring-sky-200" id="search" name="search" type="text" value="{{ request('search') }}" placeholder="Code, name, serial, barcode, category">
+            </div>
+
+            <div>
+                <label class="block text-sm font-medium text-gray-900" for="category_id">Category</label>
+                <select class="mt-2 block w-full rounded-md border border-gray-300 bg-white px-3 py-2 text-sm text-gray-900 focus:border-sky-500 focus:outline-none focus:ring-2 focus:ring-sky-200" id="category_id" name="category_id">
+                    <option value="">All categories</option>
+                    @foreach ($categories as $category)
+                        <option value="{{ $category->id }}" @selected((string) request('category_id') === (string) $category->id)>
+                            {{ $category->name }}
+                        </option>
+                    @endforeach
+                </select>
+            </div>
+
+            <div>
+                <label class="block text-sm font-medium text-gray-900" for="current_location_id">Location</label>
+                <select class="mt-2 block w-full rounded-md border border-gray-300 bg-white px-3 py-2 text-sm text-gray-900 focus:border-sky-500 focus:outline-none focus:ring-2 focus:ring-sky-200" id="current_location_id" name="current_location_id">
+                    <option value="">All locations</option>
+                    @foreach ($locations as $location)
+                        <option value="{{ $location->id }}" @selected((string) request('current_location_id') === (string) $location->id)>
+                            {{ $location->name }}
+                        </option>
+                    @endforeach
+                </select>
+            </div>
+
+            <div>
+                <label class="block text-sm font-medium text-gray-900" for="status">Status</label>
+                <select class="mt-2 block w-full rounded-md border border-gray-300 bg-white px-3 py-2 text-sm text-gray-900 focus:border-sky-500 focus:outline-none focus:ring-2 focus:ring-sky-200" id="status" name="status">
+                    <option value="">All statuses</option>
+                    @foreach ($statusOptions as $status)
+                        <option value="{{ $status->value }}" @selected(request('status') === $status->value)>
+                            {{ str($status->value)->headline() }}
+                        </option>
+                    @endforeach
+                </select>
+            </div>
+
+            <div class="flex items-end gap-3">
+                <button class="rounded-md bg-gray-950 px-4 py-2 text-sm font-medium text-white hover:bg-gray-800" type="submit">Apply</button>
+                <a class="rounded-md border border-gray-300 px-4 py-2 text-sm font-medium text-gray-700 hover:border-gray-400 hover:text-gray-950" href="{{ route('web.assets.index') }}">Reset</a>
+            </div>
+        </form>
+    </section>
+
+    <section class="mt-6 overflow-hidden rounded-lg border border-gray-200 bg-white shadow-sm">
+        <div class="overflow-x-auto">
+            <table class="min-w-full divide-y divide-gray-200 text-sm">
+                <thead class="bg-gray-50 text-left text-gray-500">
+                    <tr>
+                        <th class="px-4 py-3 font-medium">Asset</th>
+                        <th class="px-4 py-3 font-medium">Category</th>
+                        <th class="px-4 py-3 font-medium">Location</th>
+                        <th class="px-4 py-3 font-medium">Status</th>
+                        <th class="px-4 py-3 font-medium">Codes</th>
+                        <th class="px-4 py-3 font-medium">Actions</th>
+                    </tr>
+                </thead>
+                <tbody class="divide-y divide-gray-200">
+                    @forelse ($assets as $asset)
+                        <tr class="bg-white align-top">
+                            <td class="px-4 py-4">
+                                <a class="font-medium text-gray-950 hover:text-sky-800" href="{{ route('web.assets.show', $asset) }}">{{ $asset->name }}</a>
+                                <p class="text-xs text-gray-500">{{ $asset->asset_code }}</p>
+                                @if ($asset->brand || $asset->model)
+                                    <p class="mt-1 text-xs text-gray-500">{{ trim(($asset->brand ?? '').' '.($asset->model ?? '')) }}</p>
+                                @endif
+                            </td>
+                            <td class="px-4 py-4 text-gray-700">{{ $asset->category?->name ?? 'Uncategorized' }}</td>
+                            <td class="px-4 py-4 text-gray-700">
+                                {{ $asset->currentLocation?->name ?? 'Unassigned' }}
+                                @if ($asset->currentMap)
+                                    <p class="mt-1 text-xs text-gray-500">{{ $asset->currentMap->name }}</p>
+                                @endif
+                            </td>
+                            <td class="px-4 py-4">
+                                <span class="rounded-full bg-gray-100 px-2.5 py-1 text-xs font-medium text-gray-700">{{ str($asset->status?->value ?? 'unknown')->headline() }}</span>
+                            </td>
+                            <td class="px-4 py-4 text-xs text-gray-600">
+                                <p>Barcode: {{ $asset->barcode_value ?: 'None' }}</p>
+                                <p class="mt-1">RFID: {{ $asset->rfid_tag ?: 'None' }}</p>
+                                <p class="mt-1">QR: {{ $asset->qr_code_value ?: 'None' }}</p>
+                            </td>
+                            <td class="px-4 py-4">
+                                <div class="flex flex-wrap gap-2">
+                                    <a class="rounded-md border border-gray-300 px-3 py-2 text-xs font-medium text-gray-700 hover:border-gray-400 hover:text-gray-950" href="{{ route('web.assets.show', $asset) }}">View</a>
+                                    <a class="rounded-md border border-gray-300 px-3 py-2 text-xs font-medium text-gray-700 hover:border-gray-400 hover:text-gray-950" href="{{ route('web.assets.edit', $asset) }}">Edit</a>
+                                    <form action="{{ route('web.assets.destroy', $asset) }}" method="POST" onsubmit="return confirm('Delete this asset record?');">
+                                        @csrf
+                                        @method('DELETE')
+                                        <button class="rounded-md border border-red-300 px-3 py-2 text-xs font-medium text-red-700 hover:border-red-400 hover:text-red-900" type="submit">Delete</button>
+                                    </form>
+                                </div>
+                            </td>
+                        </tr>
+                    @empty
+                        <tr>
+                            <td class="px-4 py-10 text-center text-gray-600" colspan="6">No assets matched this view yet.</td>
+                        </tr>
+                    @endforelse
+                </tbody>
+            </table>
+        </div>
+
+        <div class="border-t border-gray-200 px-4 py-4">
+            {{ $assets->links() }}
+        </div>
+    </section>
+@endsection

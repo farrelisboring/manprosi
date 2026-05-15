@@ -3,15 +3,23 @@
 namespace App\Http\Requests;
 
 use App\Enums\AssetStatus;
+use App\Http\Requests\Concerns\ValidatesAssetPlacement;
 use App\Models\Asset;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rule;
 
 class UpdateAssetRequest extends FormRequest
 {
+    use ValidatesAssetPlacement;
+
     public function authorize(): bool
     {
         return true;
+    }
+
+    protected function prepareForValidation(): void
+    {
+        $this->normalizeAssetPlacementInput();
     }
 
     public function rules(): array
@@ -32,10 +40,15 @@ class UpdateAssetRequest extends FormRequest
             'rfid_tag' => ['sometimes', 'nullable', 'string', 'max:255', Rule::unique('assets', 'rfid_tag')->ignore($asset)],
             'status' => ['sometimes', 'nullable', Rule::enum(AssetStatus::class)],
             'current_location_id' => ['sometimes', 'nullable', 'integer', Rule::exists('locations', 'id')],
-            'current_map_id' => ['sometimes', 'nullable', 'integer', Rule::exists('location_maps', 'id')],
-            'position_x' => ['sometimes', 'nullable', 'numeric', 'between:-9999.9999,9999.9999'],
-            'position_y' => ['sometimes', 'nullable', 'numeric', 'between:-9999.9999,9999.9999'],
+            'current_map_id' => ['sometimes', ...$this->assetPlacementRules()['current_map_id']],
+            'position_x' => ['sometimes', ...$this->assetPlacementRules()['position_x']],
+            'position_y' => ['sometimes', ...$this->assetPlacementRules()['position_y']],
             'notes' => ['sometimes', 'nullable', 'string'],
         ];
+    }
+
+    public function after(): array
+    {
+        return $this->assetPlacementAfter();
     }
 }
