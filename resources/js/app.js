@@ -53,4 +53,67 @@ const setupMapDependentAssetForms = () => {
     });
 };
 
-document.addEventListener('DOMContentLoaded', setupMapDependentAssetForms);
+const setupTrackingPollers = () => {
+    const pollers = document.querySelectorAll('[data-tracking-poller]');
+
+    pollers.forEach((poller) => {
+        const toggle = poller.querySelector('[data-poll-toggle]');
+        const container = document.querySelector('[data-tracking-panel-container]');
+        const refreshUrl = poller.getAttribute('data-refresh-url');
+
+        if (!toggle || !container || !refreshUrl) {
+            return;
+        }
+
+        let intervalId = null;
+
+        const refreshPanel = async () => {
+            const url = new URL(refreshUrl, window.location.origin);
+            url.search = window.location.search;
+
+            const response = await fetch(url, {
+                headers: {
+                    'X-Requested-With': 'XMLHttpRequest',
+                },
+            });
+
+            if (!response.ok) {
+                return;
+            }
+
+            container.innerHTML = await response.text();
+        };
+
+        const stopPolling = () => {
+            if (intervalId !== null) {
+                window.clearInterval(intervalId);
+                intervalId = null;
+            }
+
+            toggle.textContent = 'Off';
+            toggle.setAttribute('aria-pressed', 'false');
+        };
+
+        const startPolling = () => {
+            stopPolling();
+
+            toggle.textContent = 'On';
+            toggle.setAttribute('aria-pressed', 'true');
+            intervalId = window.setInterval(refreshPanel, 5000);
+        };
+
+        toggle.addEventListener('click', () => {
+            if (intervalId !== null) {
+                stopPolling();
+                return;
+            }
+
+            startPolling();
+        });
+    });
+};
+
+document.addEventListener('DOMContentLoaded', () => {
+    setupMapDependentAssetForms();
+    setupTrackingPollers();
+});
