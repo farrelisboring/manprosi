@@ -153,7 +153,7 @@
                         <label class="block text-sm font-medium text-gray-900" for="update_type">Update type</label>
                         <select class="mt-2 block w-full rounded-md border border-gray-300 bg-white px-3 py-2 text-sm text-gray-900 focus:border-rose-500 focus:outline-none focus:ring-2 focus:ring-rose-200" id="update_type" name="update_type">
                             @foreach ($repairUpdateTypes as $type)
-                                <option value="{{ $type['value'] }}" @selected(old('update_type', 'note') === $type['value'])>{{ $type['label'] }}</option>
+                                <option value="{{ $type['value'] }}" @selected(old('update_type', 'note') === $type['value'])>{{ $type['value'] === 'note' ? 'Others' : $type['label'] }}</option>
                             @endforeach
                         </select>
                         @error('update_type') <p class="mt-1 text-sm text-red-600">{{ $message }}</p> @enderror
@@ -172,19 +172,19 @@
 
                     <div>
                         <label class="block text-sm font-medium text-gray-900" for="result_summary">Result summary</label>
-                        <input class="mt-2 block w-full rounded-md border border-gray-300 bg-white px-3 py-2 text-sm text-gray-900 focus:border-rose-500 focus:outline-none focus:ring-2 focus:ring-rose-200" id="result_summary" name="result_summary" type="text" value="{{ old('result_summary') }}">
+                        <input class="mt-2 block w-full rounded-md border border-gray-300 bg-white px-3 py-2 text-sm text-gray-900 focus:border-rose-500 focus:outline-none focus:ring-2 focus:ring-rose-200" id="result_summary" name="result_summary" required type="text" value="{{ old('result_summary') }}">
                         @error('result_summary') <p class="mt-1 text-sm text-red-600">{{ $message }}</p> @enderror
                     </div>
 
                     <div>
                         <label class="block text-sm font-medium text-gray-900" for="logged_at">Logged at</label>
-                        <input class="mt-2 block w-full rounded-md border border-gray-300 bg-white px-3 py-2 text-sm text-gray-900 focus:border-rose-500 focus:outline-none focus:ring-2 focus:ring-rose-200" id="logged_at" name="logged_at" type="datetime-local" value="{{ old('logged_at') ? \Illuminate\Support\Carbon::parse(old('logged_at'))->format('Y-m-d\TH:i') : '' }}">
+                        <input class="mt-2 block w-full rounded-md border border-gray-300 bg-white px-3 py-2 text-sm text-gray-900 focus:border-rose-500 focus:outline-none focus:ring-2 focus:ring-rose-200" id="logged_at" name="logged_at" required type="datetime-local" value="{{ old('logged_at') ? \Illuminate\Support\Carbon::parse(old('logged_at'))->format('Y-m-d\TH:i') : '' }}">
                         @error('logged_at') <p class="mt-1 text-sm text-red-600">{{ $message }}</p> @enderror
                     </div>
 
                     <div>
                         <label class="block text-sm font-medium text-gray-900" for="notes">Notes</label>
-                        <textarea class="mt-2 block min-h-28 w-full rounded-md border border-gray-300 bg-white px-3 py-2 text-sm text-gray-900 focus:border-rose-500 focus:outline-none focus:ring-2 focus:ring-rose-200" id="notes" name="notes">{{ old('notes') }}</textarea>
+                        <textarea class="mt-2 block min-h-28 w-full rounded-md border border-gray-300 bg-white px-3 py-2 text-sm text-gray-900 focus:border-rose-500 focus:outline-none focus:ring-2 focus:ring-rose-200" id="notes" name="notes" required>{{ old('notes') }}</textarea>
                         @error('notes') <p class="mt-1 text-sm text-red-600">{{ $message }}</p> @enderror
                     </div>
 

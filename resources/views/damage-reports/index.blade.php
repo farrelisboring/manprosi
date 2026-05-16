@@ -89,6 +89,7 @@
                 <label class="block text-sm font-medium text-gray-900" for="status">Status</label>
                 <select class="mt-2 block w-full rounded-md border border-gray-300 bg-white px-3 py-2 text-sm text-gray-900 focus:border-rose-500 focus:outline-none focus:ring-2 focus:ring-rose-200" id="status" name="status">
                     <option value="">Open reports</option>
+                    <option value="all" @selected($selectedStatusFilter === 'all')>All reports</option>
                     @foreach ($statusOptions as $status)
                         <option value="{{ $status->value }}" @selected($selectedStatusFilter === $status->value)>
                             {{ str($status->value)->headline() }}

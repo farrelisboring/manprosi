@@ -24,11 +24,17 @@ class DamageReportController extends Controller
     public function index(Request $request): View
     {
         $validated = $request->validate($this->filterRules());
-        $showOpenOnly = ! filled($validated['status'] ?? null);
+        $selectedStatusFilter = $validated['status'] ?? '';
+        $showOpenOnly = ! filled($selectedStatusFilter);
+        $reportFilters = $validated;
+
+        if ($selectedStatusFilter === 'all') {
+            unset($reportFilters['status']);
+        }
 
         $reports = DamageReport::query()
             ->with($this->queueRelations())
-            ->withFilters($validated)
+            ->withFilters($reportFilters)
             ->when($showOpenOnly, fn ($query) => $query->open())
             ->recentFirst()
             ->paginate(15)
@@ -42,7 +48,7 @@ class DamageReportController extends Controller
             'users' => $this->users(),
             'severityOptions' => DamageSeverity::cases(),
             'statusOptions' => DamageStatus::cases(),
-            'selectedStatusFilter' => $validated['status'] ?? '',
+            'selectedStatusFilter' => $selectedStatusFilter,
         ]);
     }
 
@@ -131,7 +137,10 @@ class DamageReportController extends Controller
     {
         return [
             'asset_id' => ['nullable', 'integer', Rule::exists('assets', 'id')],
-            'status' => ['nullable', Rule::enum(DamageStatus::class)],
+            'status' => ['nullable', Rule::in([
+                'all',
+                ...collect(DamageStatus::cases())->map(fn (DamageStatus $status) => $status->value)->all(),
+            ])],
             'severity' => ['nullable', Rule::enum(DamageSeverity::class)],
             'location_id' => ['nullable', 'integer', Rule::exists('locations', 'id')],
             'reported_by_user_id' => ['nullable', 'integer', Rule::exists('users', 'id')],

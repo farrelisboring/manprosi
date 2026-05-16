@@ -69,6 +69,37 @@ class DamageReportWebUiTest extends TestCase
             ->assertSee('1 resolved');
     }
 
+    public function test_dashboard_status_filter_supports_all_reports_option(): void
+    {
+        [$asset, $location] = $this->createAssetWithContext();
+
+        $reported = DamageReport::create([
+            'asset_id' => $asset->id,
+            'location_id' => $location->id,
+            'title' => 'Reported issue',
+            'description' => 'Fresh report.',
+            'severity' => DamageSeverity::Medium->value,
+            'status' => DamageStatus::Reported->value,
+        ]);
+
+        $resolved = DamageReport::create([
+            'asset_id' => $asset->id,
+            'location_id' => $location->id,
+            'title' => 'Resolved issue',
+            'description' => 'Already fixed.',
+            'severity' => DamageSeverity::Low->value,
+            'status' => DamageStatus::Resolved->value,
+            'resolved_at' => now(),
+        ]);
+
+        $this->get('/damage-reports?status=all')
+            ->assertOk()
+            ->assertSee('All reports')
+            ->assertSee('value="all" selected', false)
+            ->assertSee($reported->title)
+            ->assertSee($resolved->title);
+    }
+
     public function test_dashboard_filters_narrow_results_and_preserve_query_strings(): void
     {
         [$asset, $location] = $this->createAssetWithContext('AST-DMG-Q-001', 'Queue Asset');
@@ -190,6 +221,11 @@ class DamageReportWebUiTest extends TestCase
             ->assertOk()
             ->assertSee($asset->name)
             ->assertSee($location->name)
+            ->assertSee('Others')
+            ->assertDontSee('>Note<', false)
+            ->assertSee('name="logged_at" required', false)
+            ->assertSee('name="result_summary" required', false)
+            ->assertSee('name="notes" required', false)
             ->assertSeeInOrder(['Parts ordered', 'Inspection started']);
 
         $this->post('/damage-reports/'.$report->id.'/repair-updates', [
@@ -212,6 +248,26 @@ class DamageReportWebUiTest extends TestCase
             'result_summary' => 'Repair completed',
             'status_after' => DamageStatus::Resolved->value,
         ]);
+    }
+
+    public function test_repair_update_requires_logged_at_result_summary_and_notes(): void
+    {
+        [$asset, $location] = $this->createAssetWithContext();
+        $report = DamageReport::create([
+            'asset_id' => $asset->id,
+            'location_id' => $location->id,
+            'title' => 'Broken latch',
+            'description' => 'Latch is damaged.',
+            'severity' => DamageSeverity::Medium->value,
+            'status' => DamageStatus::Reported->value,
+        ]);
+
+        $this->from('/damage-reports/'.$report->id)
+            ->post('/damage-reports/'.$report->id.'/repair-updates', [
+                'update_type' => RepairUpdateType::Note->value,
+            ])
+            ->assertRedirect('/damage-reports/'.$report->id)
+            ->assertSessionHasErrors(['logged_at', 'result_summary', 'notes']);
     }
 
     public function test_damage_report_can_be_updated_and_deleted_in_web_ui(): void

@@ -31,9 +31,9 @@ class StoreRepairUpdateRequest extends FormRequest
             'updated_by_user_id' => ['nullable', 'integer', Rule::exists('users', 'id')],
             'update_type' => ['nullable', Rule::enum(RepairUpdateType::class)],
             'status_after' => ['nullable', Rule::enum(DamageStatus::class)],
-            'result_summary' => ['nullable', 'string', 'max:255'],
-            'notes' => ['nullable', 'string'],
-            'logged_at' => ['nullable', 'date'],
+            'result_summary' => ['required', 'string', 'max:255'],
+            'notes' => ['required', 'string'],
+            'logged_at' => ['required', 'date'],
         ];
     }
 
