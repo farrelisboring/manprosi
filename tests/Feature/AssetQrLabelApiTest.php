@@ -7,8 +7,8 @@ use App\Models\Asset;
 use App\Models\AssetCategory;
 use App\Models\Location;
 use App\Models\LocationMap;
+use App\Services\QrCodeValueGenerator;
 use Illuminate\Foundation\Testing\RefreshDatabase;
-use Illuminate\Support\Str;
 use Tests\TestCase;
 
 class AssetQrLabelApiTest extends TestCase
@@ -36,7 +36,7 @@ class AssetQrLabelApiTest extends TestCase
 
         $qrCodeValue = $response->json('data.qr_code_value');
 
-        $this->assertTrue(Str::isUuid($qrCodeValue));
+        $this->assertMatchesRegularExpression('/^[A-Z0-9]{10}$/', $qrCodeValue);
         $this->assertDatabaseHas('assets', [
             'id' => $asset->id,
             'qr_code_value' => $qrCodeValue,
@@ -46,7 +46,7 @@ class AssetQrLabelApiTest extends TestCase
     public function test_generating_a_second_qr_label_for_the_same_asset_returns_conflict(): void
     {
         [$asset] = $this->createAssetWithContext([
-            'qr_code_value' => (string) Str::uuid(),
+            'qr_code_value' => 'AB12CD34EF',
         ]);
 
         $this->postJson('/api/assets/'.$asset->id.'/qr-label')
@@ -54,10 +54,10 @@ class AssetQrLabelApiTest extends TestCase
             ->assertJsonPath('message', 'Asset already has a QR label.');
     }
 
-    public function test_qr_label_can_be_read_by_asset_id_and_resolved_by_uuid(): void
+    public function test_qr_label_can_be_read_by_asset_id_and_resolved_by_code(): void
     {
         [$asset] = $this->createAssetWithContext([
-            'qr_code_value' => (string) Str::uuid(),
+            'qr_code_value' => 'ZX90QP12LM',
         ]);
 
         $this->getJson('/api/assets/'.$asset->id.'/qr-label')
@@ -80,9 +80,14 @@ class AssetQrLabelApiTest extends TestCase
             ->assertOk()
             ->assertJsonPath('data.asset.id', $asset->id)
             ->assertJsonPath('data.qr_code_value', $asset->qr_code_value);
+
+        $this->getJson('/api/qr-labels/'.strtolower($asset->qr_code_value))
+            ->assertOk()
+            ->assertJsonPath('data.asset.id', $asset->id)
+            ->assertJsonPath('data.qr_code_value', $asset->qr_code_value);
     }
 
-    public function test_qr_label_lookup_handles_missing_labels_invalid_uuids_and_unknown_uuids(): void
+    public function test_qr_label_lookup_handles_missing_labels_invalid_codes_and_unknown_codes(): void
     {
         [$asset] = $this->createAssetWithContext();
 
@@ -90,11 +95,11 @@ class AssetQrLabelApiTest extends TestCase
             ->assertNotFound()
             ->assertJsonPath('message', 'Asset does not have a QR label.');
 
-        $this->getJson('/api/qr-labels/not-a-uuid')
+        $this->getJson('/api/qr-labels/not-a-code')
             ->assertUnprocessable()
             ->assertJsonValidationErrors(['qr_code_value']);
 
-        $this->getJson('/api/qr-labels/'.Str::uuid())
+        $this->getJson('/api/qr-labels/ZZ99YY88XX')
             ->assertNotFound()
             ->assertJsonPath('message', 'QR label was not found.');
     }
@@ -102,7 +107,7 @@ class AssetQrLabelApiTest extends TestCase
     public function test_qr_label_can_be_regenerated_with_confirmation(): void
     {
         [$asset] = $this->createAssetWithContext([
-            'qr_code_value' => (string) Str::uuid(),
+            'qr_code_value' => 'REGEN12345',
         ]);
         $oldQrCodeValue = $asset->qr_code_value;
 
@@ -120,7 +125,7 @@ class AssetQrLabelApiTest extends TestCase
 
         $newQrCodeValue = $response->json('data.qr_code_value');
 
-        $this->assertTrue(Str::isUuid($newQrCodeValue));
+        $this->assertMatchesRegularExpression('/^[A-Z0-9]{10}$/', $newQrCodeValue);
         $this->assertNotSame($oldQrCodeValue, $newQrCodeValue);
         $this->assertDatabaseHas('assets', [
             'id' => $asset->id,
@@ -131,7 +136,7 @@ class AssetQrLabelApiTest extends TestCase
     public function test_qr_label_can_be_deleted_with_confirmation(): void
     {
         [$asset] = $this->createAssetWithContext([
-            'qr_code_value' => (string) Str::uuid(),
+            'qr_code_value' => 'DELETE1234',
         ]);
         $oldQrCodeValue = $asset->qr_code_value;
 
@@ -168,6 +173,14 @@ class AssetQrLabelApiTest extends TestCase
         ])
             ->assertNotFound()
             ->assertJsonPath('message', 'Asset does not have a QR label.');
+    }
+
+    public function test_generator_creates_ten_character_uppercase_codes(): void
+    {
+        $value = app(QrCodeValueGenerator::class)->generate();
+
+        $this->assertSame(QrCodeValueGenerator::LENGTH, strlen($value));
+        $this->assertMatchesRegularExpression('/^[A-Z0-9]{10}$/', $value);
     }
 
     private function createAssetWithContext(array $assetOverrides = []): array

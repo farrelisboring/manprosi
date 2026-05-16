@@ -4,6 +4,7 @@ namespace App\Http\Requests;
 
 use App\Enums\AssetStatus;
 use App\Http\Requests\Concerns\ValidatesAssetPlacement;
+use App\Services\QrCodeValueGenerator;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rule;
 
@@ -19,6 +20,12 @@ class StoreAssetRequest extends FormRequest
     protected function prepareForValidation(): void
     {
         $this->normalizeAssetPlacementInput();
+
+        if ($this->exists('qr_code_value')) {
+            $this->merge([
+                'qr_code_value' => QrCodeValueGenerator::normalize($this->input('qr_code_value')),
+            ]);
+        }
     }
 
     public function rules(): array
@@ -32,7 +39,7 @@ class StoreAssetRequest extends FormRequest
             'model' => ['nullable', 'string', 'max:255'],
             'serial_number' => ['nullable', 'string', 'max:255'],
             'barcode_value' => ['nullable', 'string', 'max:255', Rule::unique('assets', 'barcode_value')],
-            'qr_code_value' => ['nullable', 'string', 'max:255', Rule::unique('assets', 'qr_code_value')],
+            'qr_code_value' => ['nullable', ...QrCodeValueGenerator::validationRules(), Rule::unique('assets', 'qr_code_value')],
             'rfid_tag' => ['nullable', 'string', 'max:255', Rule::unique('assets', 'rfid_tag')],
             'status' => ['nullable', Rule::enum(AssetStatus::class)],
             'current_location_id' => ['nullable', 'integer', Rule::exists('locations', 'id')],

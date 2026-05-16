@@ -3,11 +3,13 @@
 use App\Http\Controllers\Web\AssetController;
 use App\Http\Controllers\Web\AssetMovementController;
 use App\Http\Controllers\Web\AssetQrLabelController;
+use App\Http\Controllers\Web\AssetQrLabelRedirectController;
 use App\Http\Controllers\Web\AssetSearchController;
 use App\Http\Controllers\Web\DamageReportController;
 use App\Http\Controllers\Web\DashboardController;
 use App\Http\Controllers\Web\LocationAssetController;
 use App\Http\Controllers\Web\RepairUpdateController;
+use App\Services\QrCodeValueGenerator;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', DashboardController::class)->name('dashboard');
@@ -26,3 +28,7 @@ Route::get('/assets/{asset}/tracking', [AssetMovementController::class, 'show'])
 Route::get('/assets/{asset}/tracking/panel', [AssetMovementController::class, 'refresh'])->name('web.assets.tracking.refresh');
 Route::get('/assets/{asset}/movements/create', [AssetMovementController::class, 'create'])->name('web.assets.movements.create');
 Route::post('/assets/{asset}/movements', [AssetMovementController::class, 'store'])->name('web.assets.movements.store');
+
+Route::get('/{qrCodeValue}', AssetQrLabelRedirectController::class)
+    ->where('qrCodeValue', QrCodeValueGenerator::routePattern())
+    ->name('web.qr-labels.redirect');

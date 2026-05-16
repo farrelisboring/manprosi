@@ -189,14 +189,15 @@ class AssetWebUiTest extends TestCase
             'current_map_id' => $map->id,
             'position_x' => 10.1111,
             'position_y' => 20.2222,
-            'qr_code_value' => '7f6c48d6-f47e-49b2-bf83-6c77cc552f34',
+            'qr_code_value' => 'QRWEB12345',
         ]);
 
         $this->get('/assets/'.$asset->id)
             ->assertOk()
             ->assertSee('Patient Monitor')
             ->assertSee('Ward F Map')
-            ->assertSee('Assigned');
+            ->assertSee('Assigned')
+            ->assertSee('QRWEB12345');
 
         $this->delete('/assets/'.$asset->id)
             ->assertRedirect('/assets')
@@ -221,6 +222,7 @@ class AssetWebUiTest extends TestCase
 
         $asset->refresh();
         $this->assertNotNull($asset->qr_code_value);
+        $this->assertMatchesRegularExpression('/^[A-Z0-9]{10}$/', $asset->qr_code_value);
         $originalValue = $asset->qr_code_value;
 
         $this->patch('/assets/'.$asset->id.'/qr-label', [
@@ -230,6 +232,7 @@ class AssetWebUiTest extends TestCase
             ->assertSessionHas('status_message', 'QR label regenerated successfully.');
 
         $asset->refresh();
+        $this->assertMatchesRegularExpression('/^[A-Z0-9]{10}$/', $asset->qr_code_value);
         $this->assertNotSame($originalValue, $asset->qr_code_value);
 
         $this->delete('/assets/'.$asset->id.'/qr-label', [
@@ -249,6 +252,23 @@ class AssetWebUiTest extends TestCase
         $this->get('/assets/create')
             ->assertOk()
             ->assertSee('Asset creation is blocked');
+    }
+
+    public function test_short_qr_route_redirects_to_the_asset_detail_page(): void
+    {
+        $category = $this->createCategory();
+        $asset = Asset::create([
+            'asset_code' => 'AST-WEB-060',
+            'name' => 'CT Scanner',
+            'category_id' => $category->id,
+            'qr_code_value' => 'JT8JHFK97H',
+        ]);
+
+        $this->get('/jt8jhfk97h')
+            ->assertRedirect('/assets/'.$asset->id);
+
+        $this->get('/ZZ99YY88XX')
+            ->assertNotFound();
     }
 
     private function createCategory(string $code = 'CAT-WEB', string $name = 'Imaging'): AssetCategory
