@@ -219,6 +219,8 @@ class AssetWebUiTest extends TestCase
             ->assertSee('Ward F Map')
             ->assertSee('Assigned')
             ->assertSee('QRWEB12345')
+            ->assertSee('data-qr-preview', false)
+            ->assertSee(route('web.qr-labels.redirect', $asset->qr_code_value), false)
             ->assertDontSee('Barcode value')
             ->assertDontSee('Printable code')
             ->assertDontSee('Map placement ready');
@@ -249,6 +251,12 @@ class AssetWebUiTest extends TestCase
         $this->assertMatchesRegularExpression('/^[A-Z0-9]{10}$/', $asset->qr_code_value);
         $originalValue = $asset->qr_code_value;
 
+        $this->get('/assets/'.$asset->id)
+            ->assertOk()
+            ->assertSee('data-qr-preview', false)
+            ->assertSee(route('web.qr-labels.redirect', $asset->qr_code_value), false)
+            ->assertSee('Rendering QR preview');
+
         $this->patch('/assets/'.$asset->id.'/qr-label', [
             'confirm_regeneration' => '1',
         ])
@@ -258,6 +266,10 @@ class AssetWebUiTest extends TestCase
         $asset->refresh();
         $this->assertMatchesRegularExpression('/^[A-Z0-9]{10}$/', $asset->qr_code_value);
         $this->assertNotSame($originalValue, $asset->qr_code_value);
+
+        $this->get('/assets/'.$asset->id)
+            ->assertOk()
+            ->assertSee(route('web.qr-labels.redirect', $asset->qr_code_value), false);
 
         $this->delete('/assets/'.$asset->id.'/qr-label', [
             'confirm_deletion' => '1',
@@ -269,6 +281,11 @@ class AssetWebUiTest extends TestCase
             'id' => $asset->id,
             'qr_code_value' => null,
         ]);
+
+        $this->get('/assets/'.$asset->id)
+            ->assertOk()
+            ->assertSee('Generate a QR label to preview the short-link code.')
+            ->assertSee('A short-link URL will appear after a QR label is generated.');
     }
 
     public function test_create_page_shows_blocked_state_when_categories_are_missing(): void

@@ -3,6 +3,10 @@
 @section('title', $asset->name.' | Hospital Asset Manager')
 
 @section('content')
+    @php
+        $qrShortUrl = $asset->qr_code_value ? route('web.qr-labels.redirect', $asset->qr_code_value) : null;
+    @endphp
+
     <section class="flex flex-col gap-3 lg:flex-row lg:items-start lg:justify-between">
         <div>
             <p class="text-sm font-medium text-sky-700">Asset detail</p>
@@ -87,9 +91,29 @@
                     </span>
                 </div>
 
-                <div class="mt-5 rounded-lg border border-dashed border-gray-300 bg-gray-50 p-4">
-                    <p class="text-xs font-medium uppercase tracking-wide text-gray-500">QR code value</p>
-                    <p class="mt-2 break-all text-sm text-gray-900">{{ $asset->qr_code_value ?: 'No QR label has been generated yet.' }}</p>
+                <div
+                    class="mt-5 grid gap-4 rounded-lg border border-dashed border-gray-300 bg-gray-50 p-4 sm:grid-cols-[auto_1fr]"
+                    data-qr-preview
+                    data-qr-value="{{ $asset->qr_code_value ?? '' }}"
+                    data-short-url="{{ $qrShortUrl ?? '' }}"
+                >
+                    <div class="flex h-48 w-48 items-center justify-center rounded-lg border border-gray-200 bg-white shadow-sm" data-qr-canvas-host>
+                        <div class="px-4 text-center text-sm text-gray-500" data-qr-empty-state>
+                            {{ $asset->qr_code_value ? 'Rendering QR preview…' : 'Generate a QR label to preview the short-link code.' }}
+                        </div>
+                    </div>
+
+                    <div class="space-y-4">
+                        <div>
+                            <p class="text-xs font-medium uppercase tracking-wide text-gray-500">QR code value</p>
+                            <p class="mt-2 break-all text-sm text-gray-900">{{ $asset->qr_code_value ?: 'No QR label has been generated yet.' }}</p>
+                        </div>
+
+                        <div>
+                            <p class="text-xs font-medium uppercase tracking-wide text-gray-500">Short-link URL</p>
+                            <p class="mt-2 break-all text-sm text-gray-700">{{ $qrShortUrl ?: 'A short-link URL will appear after a QR label is generated.' }}</p>
+                        </div>
+                    </div>
                 </div>
 
                 <div class="mt-5 flex flex-wrap gap-3">

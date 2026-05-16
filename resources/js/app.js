@@ -1,3 +1,5 @@
+import QRCode from 'qrcode';
+
 const setupMapDependentAssetForms = () => {
     const forms = document.querySelectorAll('[data-map-dependent-form]');
 
@@ -115,7 +117,57 @@ const setupPollers = () => {
     });
 };
 
+const setupQrLabelPreviews = () => {
+    const previews = document.querySelectorAll('[data-qr-preview]');
+
+    previews.forEach((preview) => {
+        const shortUrl = preview.getAttribute('data-short-url');
+        const canvasHost = preview.querySelector('[data-qr-canvas-host]');
+        const emptyState = preview.querySelector('[data-qr-empty-state]');
+
+        if (!canvasHost) {
+            return;
+        }
+
+        canvasHost.innerHTML = '';
+
+        if (!shortUrl) {
+            if (emptyState) {
+                emptyState.classList.remove('hidden');
+            }
+
+            return;
+        }
+
+        if (emptyState) {
+            emptyState.classList.add('hidden');
+        }
+
+        const canvas = document.createElement('canvas');
+        canvas.className = 'h-44 w-44';
+        canvas.setAttribute('aria-label', 'QR code preview');
+        canvasHost.appendChild(canvas);
+
+        QRCode.toCanvas(canvas, shortUrl, {
+            margin: 1,
+            width: 176,
+            color: {
+                dark: '#111827',
+                light: '#F9FAFB',
+            },
+        }).catch(() => {
+            canvas.remove();
+
+            if (emptyState) {
+                emptyState.classList.remove('hidden');
+                emptyState.textContent = 'QR preview could not be rendered.';
+            }
+        });
+    });
+};
+
 document.addEventListener('DOMContentLoaded', () => {
     setupMapDependentAssetForms();
     setupPollers();
+    setupQrLabelPreviews();
 });
