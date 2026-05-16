@@ -34,6 +34,12 @@
                         Assets
                     </a>
                     <a
+                        class="rounded-md px-3 py-2 font-medium transition {{ request()->routeIs('web.damage-reports.*') ? 'bg-rose-100 text-rose-900' : 'text-gray-700 hover:bg-gray-100 hover:text-gray-950' }}"
+                        href="{{ route('web.damage-reports.index') }}"
+                    >
+                        Maintenance
+                    </a>
+                    <a
                         class="rounded-md px-3 py-2 font-medium transition {{ request()->routeIs('web.location-assets.*') ? 'bg-amber-100 text-amber-900' : 'text-gray-700 hover:bg-gray-100 hover:text-gray-950' }}"
                         href="{{ route('web.location-assets.index') }}"
                     >

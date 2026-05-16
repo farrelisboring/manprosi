@@ -4,7 +4,7 @@ namespace App\Http\Requests;
 
 use App\Enums\DamageSeverity;
 use App\Enums\DamageStatus;
-use App\Models\Asset;
+use App\Services\DamageReportWorkflow;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rule;
 
@@ -13,6 +13,19 @@ class StoreDamageReportRequest extends FormRequest
     public function authorize(): bool
     {
         return true;
+    }
+
+    protected function prepareForValidation(): void
+    {
+        foreach (['reported_at', 'resolved_at'] as $field) {
+            if (! $this->filled($field)) {
+                continue;
+            }
+
+            $this->merge([
+                $field => str_replace('T', ' ', (string) $this->input($field)),
+            ]);
+        }
     }
 
     public function rules(): array
@@ -32,18 +45,6 @@ class StoreDamageReportRequest extends FormRequest
 
     public function validatedWithDefaults(): array
     {
-        $validated = $this->validated();
-        $asset = Asset::find($validated['asset_id']);
-
-        $validated['location_id'] = $validated['location_id'] ?? $asset?->current_location_id;
-        $validated['severity'] = $validated['severity'] ?? DamageSeverity::Medium->value;
-        $validated['status'] = $validated['status'] ?? DamageStatus::Reported->value;
-        $validated['reported_at'] = $validated['reported_at'] ?? now();
-
-        if (($validated['status'] ?? null) === DamageStatus::Resolved->value) {
-            $validated['resolved_at'] = $validated['resolved_at'] ?? now();
-        }
-
-        return $validated;
+        return app(DamageReportWorkflow::class)->prepareForStore($this->validated());
     }
 }

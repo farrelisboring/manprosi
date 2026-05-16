@@ -31,15 +31,8 @@ class DamageReportController extends Controller
 
         $reports = DamageReport::query()
             ->with($this->relations())
-            ->when($validated['asset_id'] ?? null, fn ($query, $assetId) => $query->forAsset((int) $assetId))
-            ->when($validated['status'] ?? null, fn ($query, $status) => $query->where('status', $status))
-            ->when($validated['severity'] ?? null, fn ($query, $severity) => $query->withSeverity($severity))
-            ->when($validated['location_id'] ?? null, fn ($query, $locationId) => $query->where('location_id', $locationId))
-            ->when($validated['reported_by_user_id'] ?? null, fn ($query, $userId) => $query->where('reported_by_user_id', $userId))
-            ->when($validated['date_from'] ?? null, fn ($query, $date) => $query->where('reported_at', '>=', $date))
-            ->when($validated['date_to'] ?? null, fn ($query, $date) => $query->where('reported_at', '<=', $date))
-            ->orderByDesc('reported_at')
-            ->orderByDesc('id')
+            ->withFilters($validated)
+            ->recentFirst()
             ->paginate($validated['per_page'] ?? 15)
             ->withQueryString();
 
