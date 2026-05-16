@@ -1,6 +1,7 @@
 @php
     $asset = $asset ?? null;
     $selectedMapId = old('current_map_id', $asset?->current_map_id);
+    $selectedStatusValue = old('status', $asset?->status?->value ?? \App\Enums\AssetStatus::Available->value);
     $mapOptionsByLocation = $allMaps
         ->groupBy('location_id')
         ->map(fn ($group) => $group->map(fn ($map) => [
@@ -48,9 +49,8 @@
                 <div>
                     <label class="block text-sm font-medium text-gray-900" for="status">Status</label>
                     <select class="mt-2 block w-full rounded-md border border-gray-300 bg-white px-3 py-2 text-sm text-gray-900 focus:border-sky-500 focus:outline-none focus:ring-2 focus:ring-sky-200" id="status" name="status">
-                        <option value="">Use default status</option>
                         @foreach ($statusOptions as $status)
-                            <option value="{{ $status->value }}" @selected(old('status', $asset?->status?->value) === $status->value)>
+                            <option value="{{ $status->value }}" @selected($selectedStatusValue === $status->value)>
                                 {{ str($status->value)->headline() }}
                             </option>
                         @endforeach
@@ -85,18 +85,6 @@
                     <label class="block text-sm font-medium text-gray-900" for="serial_number">Serial number</label>
                     <input class="mt-2 block w-full rounded-md border border-gray-300 bg-white px-3 py-2 text-sm text-gray-900 focus:border-sky-500 focus:outline-none focus:ring-2 focus:ring-sky-200" id="serial_number" name="serial_number" type="text" value="{{ old('serial_number', $asset?->serial_number) }}">
                     @error('serial_number') <p class="mt-1 text-sm text-red-600">{{ $message }}</p> @enderror
-                </div>
-
-                <div>
-                    <label class="block text-sm font-medium text-gray-900" for="barcode_value">Barcode value</label>
-                    <input class="mt-2 block w-full rounded-md border border-gray-300 bg-white px-3 py-2 text-sm text-gray-900 focus:border-sky-500 focus:outline-none focus:ring-2 focus:ring-sky-200" id="barcode_value" name="barcode_value" type="text" value="{{ old('barcode_value', $asset?->barcode_value) }}">
-                    @error('barcode_value') <p class="mt-1 text-sm text-red-600">{{ $message }}</p> @enderror
-                </div>
-
-                <div class="sm:col-span-2">
-                    <label class="block text-sm font-medium text-gray-900" for="rfid_tag">RFID tag</label>
-                    <input class="mt-2 block w-full rounded-md border border-gray-300 bg-white px-3 py-2 text-sm text-gray-900 focus:border-sky-500 focus:outline-none focus:ring-2 focus:ring-sky-200" id="rfid_tag" name="rfid_tag" type="text" value="{{ old('rfid_tag', $asset?->rfid_tag) }}">
-                    @error('rfid_tag') <p class="mt-1 text-sm text-red-600">{{ $message }}</p> @enderror
                 </div>
             </div>
         </section>
@@ -141,17 +129,6 @@
                     @error('current_map_id') <p class="mt-1 text-sm text-red-600">{{ $message }}</p> @enderror
                 </div>
 
-                <div>
-                    <label class="block text-sm font-medium text-gray-900" for="position_x">Position X</label>
-                    <input class="mt-2 block w-full rounded-md border border-gray-300 bg-white px-3 py-2 text-sm text-gray-900 focus:border-sky-500 focus:outline-none focus:ring-2 focus:ring-sky-200" id="position_x" name="position_x" step="0.0001" type="number" value="{{ old('position_x', $asset?->position_x) }}">
-                    @error('position_x') <p class="mt-1 text-sm text-red-600">{{ $message }}</p> @enderror
-                </div>
-
-                <div>
-                    <label class="block text-sm font-medium text-gray-900" for="position_y">Position Y</label>
-                    <input class="mt-2 block w-full rounded-md border border-gray-300 bg-white px-3 py-2 text-sm text-gray-900 focus:border-sky-500 focus:outline-none focus:ring-2 focus:ring-sky-200" id="position_y" name="position_y" step="0.0001" type="number" value="{{ old('position_y', $asset?->position_y) }}">
-                    @error('position_y') <p class="mt-1 text-sm text-red-600">{{ $message }}</p> @enderror
-                </div>
             </div>
         </section>
 

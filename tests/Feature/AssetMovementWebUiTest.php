@@ -105,6 +105,9 @@ class AssetMovementWebUiTest extends TestCase
             ->assertSee($destinationMap->name)
             ->assertSee($user->email)
             ->assertSee('Movement source')
+            ->assertSeeInOrder(['name="moved_at"', 'required', 'type="datetime-local"'], false)
+            ->assertDontSee('Position X')
+            ->assertDontSee('Position Y')
             ->assertSee('max="2038-01-19T03:14"', false);
     }
 
@@ -151,6 +154,7 @@ class AssetMovementWebUiTest extends TestCase
         $this->post('/assets/'.$asset->id.'/movements', [
             'to_location_id' => $destination->id,
             'reason' => 'Stored after maintenance',
+            'moved_at' => '2026-05-15 12:45:00',
         ])->assertRedirect('/assets/'.$asset->id.'/tracking');
 
         $asset->refresh();
@@ -169,15 +173,14 @@ class AssetMovementWebUiTest extends TestCase
         $this->post('/assets/'.$asset->id.'/movements', [
             'to_location_id' => $asset->current_location_id,
             'current_map_id' => $replacementMap->id,
-            'position_x' => 41.5,
-            'position_y' => 17.25,
+            'moved_at' => '2026-05-15 14:15:00',
         ])->assertRedirect('/assets/'.$asset->id.'/tracking');
 
         $asset->refresh();
 
         $this->assertSame($replacementMap->id, $asset->current_map_id);
-        $this->assertSame(41.5, $asset->position_x);
-        $this->assertSame(17.25, $asset->position_y);
+        $this->assertNull($asset->position_x);
+        $this->assertNull($asset->position_y);
     }
 
     public function test_invalid_destination_map_combination_fails_in_web_flow(): void
@@ -191,11 +194,24 @@ class AssetMovementWebUiTest extends TestCase
             ->post('/assets/'.$asset->id.'/movements', [
                 'to_location_id' => $destination->id,
                 'current_map_id' => $wrongMap->id,
-                'position_x' => 1,
-                'position_y' => 2,
+                'moved_at' => '2026-05-15 13:45:00',
             ])
             ->assertRedirect('/assets/'.$asset->id.'/movements/create')
             ->assertSessionHasErrors('current_map_id');
+    }
+
+    public function test_movement_create_requires_moved_at_in_web_flow(): void
+    {
+        $asset = $this->createAssetWithPlacement();
+        $destination = $this->createLocation('MOVE-WEB-REQ', 'Procedure Room');
+
+        $this->from('/assets/'.$asset->id.'/movements/create')
+            ->post('/assets/'.$asset->id.'/movements', [
+                'to_location_id' => $destination->id,
+                'movement_source' => MovementSource::Manual->value,
+            ])
+            ->assertRedirect('/assets/'.$asset->id.'/movements/create')
+            ->assertSessionHasErrors('moved_at');
     }
 
     public function test_out_of_range_movement_timestamp_fails_validation_in_web_flow(): void

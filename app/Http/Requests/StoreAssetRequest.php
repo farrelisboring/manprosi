@@ -26,6 +26,12 @@ class StoreAssetRequest extends FormRequest
                 'qr_code_value' => QrCodeValueGenerator::normalize($this->input('qr_code_value')),
             ]);
         }
+
+        if (! $this->filled('status')) {
+            $this->merge([
+                'status' => AssetStatus::Available->value,
+            ]);
+        }
     }
 
     public function rules(): array

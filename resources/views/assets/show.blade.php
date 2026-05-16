@@ -72,22 +72,6 @@
                         <dt class="text-xs font-medium uppercase tracking-wide text-gray-500">Current map</dt>
                         <dd class="mt-1 text-sm text-gray-900">{{ $asset->currentMap?->name ?? 'No map placement' }}</dd>
                     </div>
-                    <div>
-                        <dt class="text-xs font-medium uppercase tracking-wide text-gray-500">Position X</dt>
-                        <dd class="mt-1 text-sm text-gray-900">{{ $asset->position_x !== null ? number_format($asset->position_x, 4) : 'Not set' }}</dd>
-                    </div>
-                    <div>
-                        <dt class="text-xs font-medium uppercase tracking-wide text-gray-500">Position Y</dt>
-                        <dd class="mt-1 text-sm text-gray-900">{{ $asset->position_y !== null ? number_format($asset->position_y, 4) : 'Not set' }}</dd>
-                    </div>
-                    <div>
-                        <dt class="text-xs font-medium uppercase tracking-wide text-gray-500">Barcode value</dt>
-                        <dd class="mt-1 text-sm text-gray-900">{{ $asset->barcode_value ?: 'Not set' }}</dd>
-                    </div>
-                    <div>
-                        <dt class="text-xs font-medium uppercase tracking-wide text-gray-500">Printable code</dt>
-                        <dd class="mt-1 text-sm text-gray-900">{{ $asset->hasPrintableCode() ? 'Available' : 'Not ready' }}</dd>
-                    </div>
                 </dl>
             </section>
         </div>
@@ -97,7 +81,6 @@
                 <div class="flex items-center justify-between gap-4">
                     <div>
                         <h2 class="text-lg font-semibold text-gray-950">QR label</h2>
-                        <p class="mt-1 text-sm text-gray-600">Manage label lifecycle separately from the main asset form.</p>
                     </div>
                     <span class="rounded-full {{ $asset->qr_code_value ? 'bg-emerald-100 text-emerald-800' : 'bg-gray-100 text-gray-700' }} px-2.5 py-1 text-xs font-medium">
                         {{ $asset->qr_code_value ? 'Assigned' : 'Missing' }}
@@ -143,10 +126,6 @@
                     <div>
                         <dt class="text-xs font-medium uppercase tracking-wide text-gray-500">Updated at</dt>
                         <dd class="mt-1 text-gray-900">{{ $asset->updated_at?->format('Y-m-d H:i') ?? 'Unknown' }}</dd>
-                    </div>
-                    <div>
-                        <dt class="text-xs font-medium uppercase tracking-wide text-gray-500">Map placement ready</dt>
-                        <dd class="mt-1 text-gray-900">{{ $asset->hasMapPlacement() ? 'Yes' : 'No' }}</dd>
                     </div>
                 </dl>
             </section>

@@ -153,6 +153,7 @@ class DamageReportWebUiTest extends TestCase
         $this->get('/damage-reports/create')
             ->assertOk()
             ->assertSee('Report asset damage')
+            ->assertSeeInOrder(['name="reported_at"', 'required', 'type="datetime-local"'], false)
             ->assertSee($asset->name)
             ->assertSee($user->email);
 
@@ -170,6 +171,7 @@ class DamageReportWebUiTest extends TestCase
             'asset_id' => $asset->id,
             'title' => 'Broken wheel',
             'description' => 'The rear wheel is jammed.',
+            'reported_at' => '2026-05-12 09:30:00',
         ])
             ->assertRedirect('/damage-reports/1')
             ->assertSessionHas('status_message', 'Damage report created successfully.');
@@ -180,7 +182,22 @@ class DamageReportWebUiTest extends TestCase
             'title' => 'Broken wheel',
             'severity' => DamageSeverity::Medium->value,
             'status' => DamageStatus::Reported->value,
+            'reported_at' => '2026-05-12 09:30:00',
         ]);
+    }
+
+    public function test_damage_report_create_requires_reported_at_in_web_ui(): void
+    {
+        [$asset] = $this->createAssetWithContext();
+
+        $this->from('/damage-reports/create')
+            ->post('/damage-reports', [
+                'asset_id' => $asset->id,
+                'title' => 'Missing timestamp',
+                'description' => 'Reported at was left blank.',
+            ])
+            ->assertRedirect('/damage-reports/create')
+            ->assertSessionHasErrors('reported_at');
     }
 
     public function test_report_detail_renders_repair_timeline_and_repair_updates_advance_status(): void

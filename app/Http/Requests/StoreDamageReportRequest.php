@@ -38,7 +38,7 @@ class StoreDamageReportRequest extends FormRequest
             'description' => ['required', 'string'],
             'severity' => [Rule::enum(DamageSeverity::class)],
             'status' => [Rule::enum(DamageStatus::class)],
-            'reported_at' => ['nullable', 'date'],
+            'reported_at' => ['required', 'date'],
             'resolved_at' => ['nullable', 'date'],
         ];
     }

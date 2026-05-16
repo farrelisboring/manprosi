@@ -77,6 +77,7 @@ class AssetMovementApiTest extends TestCase
 
         $response = $this->postJson('/api/assets/'.$asset->id.'/movements', [
             'to_location_id' => $toLocation->id,
+            'moved_at' => '2026-05-10 08:00:00',
         ]);
 
         $response
@@ -108,6 +109,7 @@ class AssetMovementApiTest extends TestCase
 
         $this->postJson('/api/assets/'.$asset->id.'/movements', [
             'to_location_id' => $toLocation->id,
+            'moved_at' => '2026-05-10 08:45:00',
         ])->assertCreated();
 
         $asset->refresh();
@@ -133,6 +135,7 @@ class AssetMovementApiTest extends TestCase
             'position_x' => 30.75,
             'position_y' => 12.5,
             'reason' => 'Placed on the digital map.',
+            'moved_at' => '2026-05-10 09:15:00',
         ])
             ->assertCreated()
             ->assertJsonPath('data.from_location.id', $location->id)
@@ -232,12 +235,13 @@ class AssetMovementApiTest extends TestCase
 
         $this->postJson('/api/assets/'.$asset->id.'/movements', [])
             ->assertUnprocessable()
-            ->assertJsonValidationErrors(['to_location_id']);
+            ->assertJsonValidationErrors(['to_location_id', 'moved_at']);
 
         $this->postJson('/api/assets/'.$asset->id.'/movements', [
             'to_location_id' => 999,
             'moved_by_user_id' => 999,
             'movement_source' => 'invalid_source',
+            'moved_at' => '2026-05-10 10:00:00',
             'current_map_id' => 999,
             'position_x' => 1,
             'position_y' => 2,
@@ -247,6 +251,7 @@ class AssetMovementApiTest extends TestCase
 
         $this->postJson('/api/assets/'.$asset->id.'/movements', [
             'to_location_id' => $location->id,
+            'moved_at' => '2026-05-10 10:15:00',
         ])
             ->assertUnprocessable()
             ->assertJsonValidationErrors(['to_location_id']);
@@ -256,6 +261,7 @@ class AssetMovementApiTest extends TestCase
             'current_map_id' => $wrongMap->id,
             'position_x' => 1,
             'position_y' => 2,
+            'moved_at' => '2026-05-10 10:30:00',
         ])
             ->assertUnprocessable()
             ->assertJsonValidationErrors(['current_map_id']);
@@ -264,6 +270,7 @@ class AssetMovementApiTest extends TestCase
             'to_location_id' => $otherLocation->id,
             'current_map_id' => $wrongMap->id,
             'position_x' => 1,
+            'moved_at' => '2026-05-10 10:45:00',
         ])
             ->assertUnprocessable()
             ->assertJsonValidationErrors(['position_y']);

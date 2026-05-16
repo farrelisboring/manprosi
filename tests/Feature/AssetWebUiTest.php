@@ -101,7 +101,12 @@ class AssetWebUiTest extends TestCase
             ->assertOk()
             ->assertSee('Create an asset record')
             ->assertSee($category->name)
-            ->assertSee('Choose a location first');
+            ->assertSee('value="available" selected', false)
+            ->assertSee('Choose a location first')
+            ->assertDontSee('Barcode value')
+            ->assertDontSee('RFID tag')
+            ->assertDontSee('Position X')
+            ->assertDontSee('Position Y');
 
         $this->get('/assets/'.$asset->id.'/edit')
             ->assertOk()
@@ -154,6 +159,22 @@ class AssetWebUiTest extends TestCase
         ]);
     }
 
+    public function test_asset_store_defaults_status_to_available_when_not_submitted(): void
+    {
+        $category = $this->createCategory('CAT-WEB-DEFAULT', 'Default Status');
+
+        $this->post('/assets', [
+            'asset_code' => 'AST-WEB-DEFAULT',
+            'name' => 'Status Default Asset',
+            'category_id' => $category->id,
+        ])->assertRedirect('/assets/1');
+
+        $this->assertDatabaseHas('assets', [
+            'asset_code' => 'AST-WEB-DEFAULT',
+            'status' => AssetStatus::Available->value,
+        ]);
+    }
+
     public function test_asset_validation_rejects_invalid_map_location_combinations(): void
     {
         $category = $this->createCategory();
@@ -197,7 +218,10 @@ class AssetWebUiTest extends TestCase
             ->assertSee('Patient Monitor')
             ->assertSee('Ward F Map')
             ->assertSee('Assigned')
-            ->assertSee('QRWEB12345');
+            ->assertSee('QRWEB12345')
+            ->assertDontSee('Barcode value')
+            ->assertDontSee('Printable code')
+            ->assertDontSee('Map placement ready');
 
         $this->delete('/assets/'.$asset->id)
             ->assertRedirect('/assets')

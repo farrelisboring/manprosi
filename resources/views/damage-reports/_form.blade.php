@@ -100,6 +100,7 @@
                     class="mt-2 block w-full rounded-md border border-gray-300 bg-white px-3 py-2 text-sm text-gray-900 focus:border-rose-500 focus:outline-none focus:ring-2 focus:ring-rose-200"
                     id="reported_at"
                     name="reported_at"
+                    required
                     type="datetime-local"
                     value="{{ old('reported_at', $damageReport?->reported_at?->format('Y-m-d\TH:i')) }}"
                 >

@@ -29,7 +29,7 @@
 
     <section class="mt-8 rounded-lg border border-gray-200 bg-white p-5 shadow-sm">
         <h2 class="text-lg font-semibold text-gray-950">Current placement</h2>
-        <div class="mt-5 grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
+        <div class="mt-5 grid gap-4 sm:grid-cols-2">
             <div>
                 <p class="text-xs font-medium uppercase tracking-wide text-gray-500">Current location</p>
                 <p class="mt-1 text-sm text-gray-900">{{ $asset->currentLocation?->name ?? 'Unassigned' }}</p>
@@ -37,14 +37,6 @@
             <div>
                 <p class="text-xs font-medium uppercase tracking-wide text-gray-500">Current map</p>
                 <p class="mt-1 text-sm text-gray-900">{{ $asset->currentMap?->name ?? 'No map placement' }}</p>
-            </div>
-            <div>
-                <p class="text-xs font-medium uppercase tracking-wide text-gray-500">Position X</p>
-                <p class="mt-1 text-sm text-gray-900">{{ $asset->position_x !== null ? number_format($asset->position_x, 4) : 'Not set' }}</p>
-            </div>
-            <div>
-                <p class="text-xs font-medium uppercase tracking-wide text-gray-500">Position Y</p>
-                <p class="mt-1 text-sm text-gray-900">{{ $asset->position_y !== null ? number_format($asset->position_y, 4) : 'Not set' }}</p>
             </div>
         </div>
     </section>
@@ -113,6 +105,7 @@
                             class="mt-2 block w-full rounded-md border border-gray-300 bg-white px-3 py-2 text-sm text-gray-900 focus:border-sky-500 focus:outline-none focus:ring-2 focus:ring-sky-200"
                             id="moved_at"
                             name="moved_at"
+                            required
                             type="datetime-local"
                             min="{{ \Illuminate\Support\Carbon::parse(\App\Http\Requests\StoreAssetMovementRequest::EARLIEST_MOVED_AT)->format('Y-m-d\TH:i') }}"
                             max="{{ \Illuminate\Support\Carbon::parse(\App\Http\Requests\StoreAssetMovementRequest::LATEST_MOVED_AT)->format('Y-m-d\TH:i') }}"
@@ -155,18 +148,6 @@
                             @endforeach
                         </select>
                         @error('current_map_id') <p class="mt-1 text-sm text-red-600">{{ $message }}</p> @enderror
-                    </div>
-
-                    <div>
-                        <label class="block text-sm font-medium text-gray-900" for="position_x">Position X</label>
-                        <input class="mt-2 block w-full rounded-md border border-gray-300 bg-white px-3 py-2 text-sm text-gray-900 focus:border-sky-500 focus:outline-none focus:ring-2 focus:ring-sky-200" id="position_x" name="position_x" step="0.0001" type="number" value="{{ old('position_x') }}">
-                        @error('position_x') <p class="mt-1 text-sm text-red-600">{{ $message }}</p> @enderror
-                    </div>
-
-                    <div>
-                        <label class="block text-sm font-medium text-gray-900" for="position_y">Position Y</label>
-                        <input class="mt-2 block w-full rounded-md border border-gray-300 bg-white px-3 py-2 text-sm text-gray-900 focus:border-sky-500 focus:outline-none focus:ring-2 focus:ring-sky-200" id="position_y" name="position_y" step="0.0001" type="number" value="{{ old('position_y') }}">
-                        @error('position_y') <p class="mt-1 text-sm text-red-600">{{ $message }}</p> @enderror
                     </div>
                 </div>
             </section>
