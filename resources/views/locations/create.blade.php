@@ -16,7 +16,7 @@
         <form action="{{ route('web.locations.store') }}" method="POST">
             @include('locations._form', [
                 'location' => $location,
-                'submitLabel' => 'Create location',
+                'submitLabel' => 'Simpan Ruangan',
                 'cancelUrl' => route('web.locations.index'),
             ])
         </form>

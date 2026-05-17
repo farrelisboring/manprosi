@@ -6,10 +6,10 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\StoreLocationRequest;
 use App\Http\Requests\UpdateLocationRequest;
 use App\Models\Location;
+use App\Models\LocationMap;
 use App\Services\LocationDeletionGuard;
 use Illuminate\Contracts\View\View;
 use Illuminate\Http\RedirectResponse;
-use Illuminate\Http\Request;
 use Illuminate\Pagination\LengthAwarePaginator;
 use Illuminate\Support\Collection;
 
@@ -22,7 +22,7 @@ class LocationController extends Controller
     public function index(): View
     {
         $locations = Location::query()
-            ->with('parent:id,code,name')
+            ->with('locationMap:id,name')
             ->orderBy('name')
             ->paginate(15)
             ->withQueryString();
@@ -52,9 +52,7 @@ class LocationController extends Controller
     {
         return view('locations.show', [
             'location' => $location->load([
-                'parent:id,code,name',
-                'children:id,parent_id,code,name,type,floor_number',
-                'maps:id,location_id,name,notes,created_at',
+                'locationMap:id,name,notes,created_at',
             ]),
             'isDeletionBlocked' => $this->deletionGuard->isBlocked($location),
             'blockedDeletionMessage' => LocationDeletionGuard::BLOCKED_MESSAGE,
@@ -97,48 +95,16 @@ class LocationController extends Controller
     {
         return [
             'location' => $location,
-            'parentOptions' => $this->parentOptions($location),
+            'locationMapOptions' => $this->locationMapOptions(),
         ];
     }
 
-    private function parentOptions(?Location $location = null): Collection
+    private function locationMapOptions(): Collection
     {
-        $query = Location::query()
+        return LocationMap::query()
             ->orderBy('name')
-            ->select(['id', 'code', 'name', 'type', 'floor_number']);
-
-        if (! $location) {
-            return $query->get();
-        }
-
-        return $query
-            ->whereNotIn('id', array_merge([$location->id], $this->descendantIds($location)))
+            ->select(['id', 'name'])
             ->get();
-    }
-
-    private function descendantIds(Location $location): array
-    {
-        $descendantIds = [];
-        $pendingIds = [$location->id];
-
-        while ($pendingIds !== []) {
-            $childIds = Location::query()
-                ->whereIn('parent_id', $pendingIds)
-                ->pluck('id')
-                ->map(fn ($id) => (int) $id)
-                ->all();
-
-            $childIds = array_values(array_diff($childIds, $descendantIds));
-
-            if ($childIds === []) {
-                break;
-            }
-
-            $descendantIds = array_merge($descendantIds, $childIds);
-            $pendingIds = $childIds;
-        }
-
-        return $descendantIds;
     }
 
     private function blockedDeletionIds(LengthAwarePaginator $locations): array

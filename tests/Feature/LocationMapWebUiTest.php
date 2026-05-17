@@ -22,17 +22,17 @@ class LocationMapWebUiTest extends TestCase
 
     public function test_location_map_pages_load(): void
     {
-        $location = $this->createLocation('MAP-UI-001', 'Emergency Building');
-        $locationMap = $this->createMap($location, 'Emergency Tower');
+        $locationMap = $this->createGedung('Emergency Tower');
+        $location = $this->createLocation('MAP-UI-001', 'Emergency Room', locationMapId: $locationMap->id);
 
         $this->get('/location-maps')
             ->assertOk()
-            ->assertSee('Location maps')
+            ->assertSee('Gedung')
             ->assertSee($locationMap->name);
 
         $this->get('/location-maps/create')
             ->assertOk()
-            ->assertSee('New location map');
+            ->assertSee('Tambahkan Gedung');
 
         $this->get('/location-maps/'.$locationMap->id)
             ->assertOk()
@@ -41,71 +41,51 @@ class LocationMapWebUiTest extends TestCase
 
         $this->get('/location-maps/'.$locationMap->id.'/edit')
             ->assertOk()
-            ->assertSee('Edit location map')
+            ->assertSee('Edit Gedung')
             ->assertSee('value="'.$locationMap->name.'"', false);
     }
 
-    public function test_location_map_can_be_created_and_updated_without_image_fields(): void
+    public function test_location_map_can_be_created_and_updated_without_room_assignment(): void
     {
-        $location = $this->createLocation('MAP-UI-010', 'Surgery');
-        $otherLocation = $this->createLocation('MAP-UI-011', 'Recovery');
-
         $this->post('/location-maps', [
-            'location_id' => $location->id,
             'name' => 'Surgery Tower',
             'notes' => 'North side.',
         ])->assertRedirect();
 
         $locationMap = LocationMap::query()->where('name', 'Surgery Tower')->firstOrFail();
 
-        $this->assertSame($location->id, $locationMap->location_id);
+        $this->assertNull($locationMap->location_id);
         $this->assertNull($locationMap->image_path);
         $this->assertNull($locationMap->image_width);
         $this->assertNull($locationMap->image_height);
 
         $this->put('/location-maps/'.$locationMap->id, [
-            'location_id' => $otherLocation->id,
             'name' => 'Recovery Tower',
             'notes' => 'Updated notes.',
         ])->assertRedirect('/location-maps/'.$locationMap->id);
 
         $locationMap->refresh();
 
-        $this->assertSame($otherLocation->id, $locationMap->location_id);
         $this->assertSame('Recovery Tower', $locationMap->name);
         $this->assertSame('Updated notes.', $locationMap->notes);
     }
 
     public function test_location_map_delete_succeeds_when_unused(): void
     {
-        $location = $this->createLocation('MAP-UI-020', 'Storage');
-        $locationMap = $this->createMap($location, 'Storage Tower');
+        $locationMap = $this->createGedung('Storage Tower');
 
         $this->delete('/location-maps/'.$locationMap->id)
-            ->assertRedirect('/location-maps?location_id='.$location->id);
+            ->assertRedirect('/location-maps');
 
         $this->assertDatabaseMissing('location_maps', [
             'id' => $locationMap->id,
         ]);
     }
 
-    public function test_location_map_delete_is_blocked_when_assets_reference_the_map(): void
+    public function test_location_map_delete_is_blocked_when_rooms_reference_the_gedung(): void
     {
-        $category = AssetCategory::create([
-            'code' => 'MAP-UI-CAT',
-            'name' => 'Respiratory',
-        ]);
-
-        $location = $this->createLocation('MAP-UI-030', 'NICU');
-        $locationMap = $this->createMap($location, 'NICU Tower');
-
-        Asset::create([
-            'asset_code' => 'MAP-UI-ASSET-001',
-            'name' => 'Ventilator',
-            'category_id' => $category->id,
-            'current_location_id' => $location->id,
-            'current_map_id' => $locationMap->id,
-        ]);
+        $locationMap = $this->createGedung('NICU Tower');
+        $this->createLocation('MAP-UI-030', 'NICU Room', locationMapId: $locationMap->id);
 
         $this->get('/location-maps')
             ->assertOk()
@@ -120,27 +100,38 @@ class LocationMapWebUiTest extends TestCase
         ]);
     }
 
-    public function test_location_maps_can_be_filtered_by_location(): void
+    public function test_location_map_delete_is_blocked_when_assets_reference_the_map(): void
     {
-        $selectedLocation = $this->createLocation('MAP-UI-040', 'Oncology');
-        $otherLocation = $this->createLocation('MAP-UI-041', 'Pediatrics');
+        $category = AssetCategory::create([
+            'code' => 'MAP-UI-CAT',
+            'name' => 'Respiratory',
+        ]);
 
-        $selectedMap = $this->createMap($selectedLocation, 'Oncology Tower');
-        $otherMap = $this->createMap($otherLocation, 'Pediatrics Tower');
+        $locationMap = $this->createGedung('Asset Tower');
+        $location = $this->createLocation('MAP-UI-031', 'Asset Room');
 
-        $this->get('/location-maps?location_id='.$selectedLocation->id)
-            ->assertOk()
-            ->assertSee($selectedMap->name)
-            ->assertDontSee($otherMap->name);
+        Asset::create([
+            'asset_code' => 'MAP-UI-ASSET-001',
+            'name' => 'Ventilator',
+            'category_id' => $category->id,
+            'current_location_id' => $location->id,
+            'current_map_id' => $locationMap->id,
+        ]);
+
+        $this->delete('/location-maps/'.$locationMap->id)
+            ->assertRedirect('/location-maps/'.$locationMap->id)
+            ->assertSessionHas('status_message', 'This item cannot be deleted because related records still exist.');
     }
 
     private function createLocation(
         string $code,
         string $name,
-        string $type = 'Building',
+        string $type = 'Room',
         ?int $floorNumber = 1,
+        ?int $locationMapId = null,
     ): Location {
         return Location::create([
+            'location_map_id' => $locationMapId,
             'code' => $code,
             'name' => $name,
             'type' => $type,
@@ -149,10 +140,9 @@ class LocationMapWebUiTest extends TestCase
         ]);
     }
 
-    private function createMap(Location $location, string $name): LocationMap
+    private function createGedung(string $name): LocationMap
     {
         return LocationMap::create([
-            'location_id' => $location->id,
             'name' => $name,
             'image_path' => null,
             'image_width' => null,

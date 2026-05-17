@@ -10,6 +10,7 @@ class LocationMapDeletionGuard
 
     public function isBlocked(LocationMap $locationMap): bool
     {
-        return $locationMap->assets()->exists();
+        return $locationMap->locations()->exists()
+            || $locationMap->assets()->exists();
     }
 }

@@ -22,21 +22,21 @@
         <section class="rounded-lg border border-gray-200 bg-white p-5 shadow-sm">
             <div class="grid gap-5 sm:grid-cols-2">
                 <div class="sm:col-span-2">
-                    <label class="block text-sm font-medium text-gray-900" for="asset_code">Asset code</label>
+                    <label class="block text-sm font-medium text-gray-900" for="asset_code">Kode Aset</label>
                     <input class="mt-2 block w-full rounded-md border border-gray-300 bg-white px-3 py-2 text-sm text-gray-900 focus:border-sky-500 focus:outline-none focus:ring-2 focus:ring-sky-200" id="asset_code" name="asset_code" type="text" value="{{ old('asset_code', $asset?->asset_code) }}">
                     @error('asset_code') <p class="mt-1 text-sm text-red-600">{{ $message }}</p> @enderror
                 </div>
 
                 <div class="sm:col-span-2">
-                    <label class="block text-sm font-medium text-gray-900" for="name">Asset name</label>
+                    <label class="block text-sm font-medium text-gray-900" for="name">Nama Aset</label>
                     <input class="mt-2 block w-full rounded-md border border-gray-300 bg-white px-3 py-2 text-sm text-gray-900 focus:border-sky-500 focus:outline-none focus:ring-2 focus:ring-sky-200" id="name" name="name" type="text" value="{{ old('name', $asset?->name) }}">
                     @error('name') <p class="mt-1 text-sm text-red-600">{{ $message }}</p> @enderror
                 </div>
 
                 <div>
-                    <label class="block text-sm font-medium text-gray-900" for="category_id">Category</label>
+                    <label class="block text-sm font-medium text-gray-900" for="category_id">Kategori</label>
                     <select class="mt-2 block w-full rounded-md border border-gray-300 bg-white px-3 py-2 text-sm text-gray-900 focus:border-sky-500 focus:outline-none focus:ring-2 focus:ring-sky-200" id="category_id" name="category_id">
-                        <option value="">Select a category</option>
+                        <option value="">Pilih kategori</option>
                         @foreach ($categories as $category)
                             <option value="{{ $category->id }}" @selected((string) old('category_id', $asset?->category_id) === (string) $category->id)>
                                 {{ $category->name }} ({{ $category->code }})
@@ -59,7 +59,7 @@
                 </div>
 
                 <div class="sm:col-span-2">
-                    <label class="block text-sm font-medium text-gray-900" for="description">Description</label>
+                    <label class="block text-sm font-medium text-gray-900" for="description">Deskripsi</label>
                     <textarea class="mt-2 block min-h-28 w-full rounded-md border border-gray-300 bg-white px-3 py-2 text-sm text-gray-900 focus:border-sky-500 focus:outline-none focus:ring-2 focus:ring-sky-200" id="description" name="description">{{ old('description', $asset?->description) }}</textarea>
                     @error('description') <p class="mt-1 text-sm text-red-600">{{ $message }}</p> @enderror
                 </div>
@@ -67,7 +67,7 @@
         </section>
 
         <section class="rounded-lg border border-gray-200 bg-white p-5 shadow-sm">
-            <h2 class="text-lg font-semibold text-gray-950">Identifiers and vendor details</h2>
+            <h2 class="text-lg font-semibold text-gray-950">Detail lebih lanjut</h2>
             <div class="mt-5 grid gap-5 sm:grid-cols-2">
                 <div>
                     <label class="block text-sm font-medium text-gray-900" for="brand">Brand</label>
@@ -82,7 +82,7 @@
                 </div>
 
                 <div>
-                    <label class="block text-sm font-medium text-gray-900" for="serial_number">Serial number</label>
+                    <label class="block text-sm font-medium text-gray-900" for="serial_number">Nomer Serial</label>
                     <input class="mt-2 block w-full rounded-md border border-gray-300 bg-white px-3 py-2 text-sm text-gray-900 focus:border-sky-500 focus:outline-none focus:ring-2 focus:ring-sky-200" id="serial_number" name="serial_number" type="text" value="{{ old('serial_number', $asset?->serial_number) }}">
                     @error('serial_number') <p class="mt-1 text-sm text-red-600">{{ $message }}</p> @enderror
                 </div>
@@ -93,11 +93,10 @@
     <div class="space-y-6">
         <section class="rounded-lg border border-gray-200 bg-white p-5 shadow-sm">
             <h2 class="text-lg font-semibold text-gray-950">Placement</h2>
-            <p class="mt-1 text-sm text-gray-600">Choose a current location first. Maps are limited to the selected location.</p>
 
             <div class="mt-5 grid gap-5 sm:grid-cols-2">
                 <div class="sm:col-span-2">
-                    <label class="block text-sm font-medium text-gray-900" for="current_location_id">Current location</label>
+                    <label class="block text-sm font-medium text-gray-900" for="current_location_id">Lokasi saat ini</label>
                     <select class="mt-2 block w-full rounded-md border border-gray-300 bg-white px-3 py-2 text-sm text-gray-900 focus:border-sky-500 focus:outline-none focus:ring-2 focus:ring-sky-200" id="current_location_id" name="current_location_id" data-location-select>
                         <option value="">No current location</option>
                         @foreach ($locations as $location)
@@ -109,31 +108,33 @@
                     @error('current_location_id') <p class="mt-1 text-sm text-red-600">{{ $message }}</p> @enderror
                 </div>
 
-                <div class="sm:col-span-2">
-                    <label class="block text-sm font-medium text-gray-900" for="current_map_id">Current map</label>
-                    <select
-                        class="mt-2 block w-full rounded-md border border-gray-300 bg-white px-3 py-2 text-sm text-gray-900 focus:border-sky-500 focus:outline-none focus:ring-2 focus:ring-sky-200 disabled:bg-gray-100 disabled:text-gray-500"
-                        id="current_map_id"
-                        name="current_map_id"
-                        data-map-select
-                        data-selected-map="{{ $selectedMapId }}"
-                        @disabled($selectedLocationId === null || $maps->isEmpty())
-                    >
-                        <option value="">{{ $selectedLocationId === null ? 'Choose a location first' : 'No map placement' }}</option>
-                        @foreach ($maps as $map)
-                            <option value="{{ $map->id }}" @selected((string) $selectedMapId === (string) $map->id)>
-                                {{ $map->name }}
-                            </option>
-                        @endforeach
-                    </select>
-                    @error('current_map_id') <p class="mt-1 text-sm text-red-600">{{ $message }}</p> @enderror
-                </div>
+                @unless ($asset)
+                    <div class="sm:col-span-2">
+                        <label class="block text-sm font-medium text-gray-900" for="current_map_id">Current map</label>
+                        <select
+                            class="mt-2 block w-full rounded-md border border-gray-300 bg-white px-3 py-2 text-sm text-gray-900 focus:border-sky-500 focus:outline-none focus:ring-2 focus:ring-sky-200 disabled:bg-gray-100 disabled:text-gray-500"
+                            id="current_map_id"
+                            name="current_map_id"
+                            data-map-select
+                            data-selected-map="{{ $selectedMapId }}"
+                            @disabled($selectedLocationId === null || $maps->isEmpty())
+                        >
+                            <option value="">{{ $selectedLocationId === null ? 'Choose a location first' : 'No map placement' }}</option>
+                            @foreach ($maps as $map)
+                                <option value="{{ $map->id }}" @selected((string) $selectedMapId === (string) $map->id)>
+                                    {{ $map->name }}
+                                </option>
+                            @endforeach
+                        </select>
+                        @error('current_map_id') <p class="mt-1 text-sm text-red-600">{{ $message }}</p> @enderror
+                    </div>
+                @endunless
 
             </div>
         </section>
 
         <section class="rounded-lg border border-gray-200 bg-white p-5 shadow-sm">
-            <h2 class="text-lg font-semibold text-gray-950">Operational notes</h2>
+            <h2 class="text-lg font-semibold text-gray-950">Notes Operasional</h2>
             <div class="mt-5">
                 <label class="block text-sm font-medium text-gray-900" for="notes">Notes</label>
                 <textarea class="mt-2 block min-h-40 w-full rounded-md border border-gray-300 bg-white px-3 py-2 text-sm text-gray-900 focus:border-sky-500 focus:outline-none focus:ring-2 focus:ring-sky-200" id="notes" name="notes">{{ old('notes', $asset?->notes) }}</textarea>

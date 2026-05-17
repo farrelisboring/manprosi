@@ -5,16 +5,13 @@
 @section('content')
     <section class="flex flex-col gap-3 lg:flex-row lg:items-end lg:justify-between">
         <div>
-            <p class="text-sm font-medium text-amber-700">Location operations</p>
-            <h1 class="text-3xl font-semibold text-gray-950">Assets by location</h1>
-            <p class="mt-2 max-w-3xl text-sm text-gray-600">
-                Pick one active hospital location and review only the assets currently assigned there.
-            </p>
+            <p class="text-sm font-medium text-amber-700">Informasi Aset Per-ruangan</p>
+            <h1 class="text-3xl font-semibold text-gray-950">Aset Per-ruangan</h1>
         </div>
 
         <div class="flex flex-wrap gap-3">
-            <a class="rounded-md border border-gray-300 px-4 py-2 text-sm font-medium text-gray-700 hover:border-gray-400 hover:text-gray-950" href="{{ route('web.locations.index') }}">Manage locations</a>
-            <a class="rounded-md border border-gray-300 px-4 py-2 text-sm font-medium text-gray-700 hover:border-gray-400 hover:text-gray-950" href="{{ route('web.location-maps.index') }}">Manage maps</a>
+            <a class="rounded-md border border-gray-300 px-4 py-2 text-sm font-medium text-gray-700 hover:border-gray-400 hover:text-gray-950" href="{{ route('web.locations.index') }}">Kelola Ruangan</a>
+            <a class="rounded-md border border-gray-300 px-4 py-2 text-sm font-medium text-gray-700 hover:border-gray-400 hover:text-gray-950" href="{{ route('web.location-maps.index') }}">Kelola Gedung</a>
         </div>
     </section>
 
@@ -34,7 +31,7 @@
                 </div>
 
                 <div class="flex h-full items-end gap-3">
-                    <button class="rounded-md bg-gray-950 px-4 py-2 text-sm font-medium text-white hover:bg-gray-800" type="submit">View assets</button>
+                    <button class="rounded-md bg-gray-950 px-4 py-2 text-sm font-medium text-white hover:bg-gray-800" type="submit">Lihat Aset</button>
                     <a class="rounded-md border border-gray-300 px-4 py-2 text-sm font-medium text-gray-700 hover:border-gray-400 hover:text-gray-950" href="{{ route('web.location-assets.index') }}">Reset</a>
                 </div>
             </form>

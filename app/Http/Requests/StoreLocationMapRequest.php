@@ -15,7 +15,7 @@ class StoreLocationMapRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'location_id' => ['required', 'integer', Rule::exists('locations', 'id')->whereNull('deleted_at')],
+            'location_id' => ['nullable', 'integer', Rule::exists('locations', 'id')->whereNull('deleted_at')],
             'name' => ['required', 'string', 'max:255'],
             'notes' => ['nullable', 'string'],
         ];

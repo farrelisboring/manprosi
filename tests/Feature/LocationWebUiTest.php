@@ -5,6 +5,7 @@ namespace Tests\Feature;
 use App\Models\Asset;
 use App\Models\AssetCategory;
 use App\Models\Location;
+use App\Models\LocationMap;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
 
@@ -21,21 +22,24 @@ class LocationWebUiTest extends TestCase
 
     public function test_location_pages_load(): void
     {
-        $location = $this->createLocation('LOC-UI-001', 'North Tower');
+        $gedung = $this->createGedung('North Tower');
+        $location = $this->createLocation('LOC-UI-001', 'North Tower Room', locationMapId: $gedung->id);
 
         $this->get('/locations')
             ->assertOk()
-            ->assertSee('Locations')
-            ->assertSee($location->name);
+            ->assertSee('Ruangan')
+            ->assertSee($location->name)
+            ->assertSee($gedung->name);
 
         $this->get('/locations/create')
             ->assertOk()
-            ->assertSee('New location');
+            ->assertSee('Ruangan Baru');
 
         $this->get('/locations/'.$location->id)
             ->assertOk()
             ->assertSee($location->name)
-            ->assertSee('Location snapshot');
+            ->assertSee($gedung->name)
+            ->assertSee('Ringkasan Ruangan');
 
         $this->get('/locations/'.$location->id.'/edit')
             ->assertOk()
@@ -43,12 +47,13 @@ class LocationWebUiTest extends TestCase
             ->assertSee('value="'.$location->code.'"', false);
     }
 
-    public function test_location_can_be_created_and_updated(): void
+    public function test_location_can_be_created_and_updated_with_optional_gedung_link(): void
     {
-        $parent = $this->createLocation('LOC-UI-010', 'Main Hospital');
+        $gedung = $this->createGedung('Gedung A');
+        $otherGedung = $this->createGedung('Gedung B');
 
         $this->post('/locations', [
-            'parent_id' => $parent->id,
+            'location_map_id' => $gedung->id,
             'code' => 'LOC-UI-011',
             'name' => 'ICU Wing',
             'type' => 'Building',
@@ -59,14 +64,14 @@ class LocationWebUiTest extends TestCase
 
         $location = Location::query()->where('code', 'LOC-UI-011')->firstOrFail();
 
-        $this->assertSame($parent->id, $location->parent_id);
+        $this->assertSame($gedung->id, $location->location_map_id);
         $this->assertSame('ICU Wing', $location->name);
         $this->assertSame('Building', $location->type);
         $this->assertSame(4, $location->floor_number);
         $this->assertTrue($location->is_active);
 
         $this->put('/locations/'.$location->id, [
-            'parent_id' => null,
+            'location_map_id' => $otherGedung->id,
             'code' => 'LOC-UI-011',
             'name' => 'ICU and Recovery Wing',
             'type' => 'Lab',
@@ -77,7 +82,7 @@ class LocationWebUiTest extends TestCase
 
         $location->refresh();
 
-        $this->assertNull($location->parent_id);
+        $this->assertSame($otherGedung->id, $location->location_map_id);
         $this->assertSame('ICU and Recovery Wing', $location->name);
         $this->assertSame('Lab', $location->type);
         $this->assertSame(5, $location->floor_number);
@@ -96,21 +101,16 @@ class LocationWebUiTest extends TestCase
         ]);
     }
 
-    public function test_location_delete_is_blocked_in_ui_and_on_server_when_related_rows_exist(): void
+    public function test_location_delete_is_not_blocked_by_a_linked_gedung(): void
     {
-        $location = $this->createLocation('LOC-UI-030', 'Radiology');
-        $this->createLocation('LOC-UI-031', 'Radiology Storage', parentId: $location->id);
-
-        $this->get('/locations')
-            ->assertOk()
-            ->assertSee('data-blocked-action-message="This item cannot be deleted because related records still exist."', false);
+        $gedung = $this->createGedung('Gedung Netral');
+        $location = $this->createLocation('LOC-UI-021', 'Archive Room', locationMapId: $gedung->id);
 
         $this->delete('/locations/'.$location->id)
-            ->assertRedirect('/locations/'.$location->id);
+            ->assertRedirect('/locations');
 
-        $this->assertDatabaseHas('locations', [
+        $this->assertSoftDeleted('locations', [
             'id' => $location->id,
-            'deleted_at' => null,
         ]);
     }
 
@@ -145,16 +145,24 @@ class LocationWebUiTest extends TestCase
         string $name,
         string $type = 'Room',
         ?int $floorNumber = 1,
-        ?int $parentId = null,
+        ?int $locationMapId = null,
         bool $isActive = true,
     ): Location {
         return Location::create([
-            'parent_id' => $parentId,
+            'location_map_id' => $locationMapId,
             'code' => $code,
             'name' => $name,
             'type' => $type,
             'floor_number' => $floorNumber,
             'is_active' => $isActive,
+        ]);
+    }
+
+    private function createGedung(string $name): LocationMap
+    {
+        return LocationMap::create([
+            'name' => $name,
+            'notes' => 'Catatan uji.',
         ]);
     }
 }

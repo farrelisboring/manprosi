@@ -120,7 +120,7 @@
                         </tr>
                     @empty
                         <tr>
-                            <td class="px-4 py-10 text-center text-gray-600" colspan="6">Belum ada aset yang cocok dengan tampilan ini.</td>
+                            <td class="px-4 py-10 text-center text-gray-600" colspan="6">Belum ada aset yang cocok dengan filter ini.</td>
                         </tr>
                     @endforelse
                 </tbody>
