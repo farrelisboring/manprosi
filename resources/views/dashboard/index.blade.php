@@ -1,108 +1,123 @@
 @extends('layouts.app')
 
 @section('title', 'Dashboard | Hospital Asset Manager')
+@section('page-eyebrow', 'RS WIDJAYA')
+@section('page-heading', 'Dashboard')
+
+@section('page-actions')
+    <a class="rounded-full border border-slate-200 px-5 py-3 text-sm font-semibold text-slate-700 transition hover:border-slate-300 hover:text-slate-950" href="{{ route('web.assets.index') }}">
+        Browse Asset
+    </a>
+    <a class="rounded-full bg-slate-950 px-5 py-3 text-sm font-semibold text-white transition hover:bg-slate-800" href="{{ route('web.assets.create') }}">
+        Tambah Aset
+    </a>
+@endsection
 
 @section('content')
-    <section class="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
-        <div>
-            <p class="text-sm font-medium text-emerald-700">Dashboard Operasional</p>
-            <h1 class="text-3xl font-semibold text-gray-950">RS WIDJAYA</h1>
-            
-        </div>
+    <section class="grid gap-6 xl:grid-cols-[1.25fr_0.95fr]">
+        <article class="rounded-[28px] bg-[#33457f] px-7 py-7 text-white shadow-[0_18px_50px_rgba(51,69,127,0.28)] lg:px-8 lg:py-8">
+            <p class="text-sm font-semibold uppercase tracking-[0.2em] text-white/65">Ringkasan Hari Ini</p>
 
-        <div class="flex items-center gap-3">
-            <a class="rounded-md bg-gray-950 px-4 py-2 text-sm font-medium text-white hover:bg-gray-800" href="{{ route('web.assets.create') }}">
-                Tambah Aset
-            </a>
-            <a class="rounded-md border border-gray-300 px-4 py-2 text-sm font-medium text-gray-700 hover:border-gray-400 hover:text-gray-950" href="{{ route('web.assets.index') }}">
-                Pencarian Aset
-            </a>
-        </div>
-    </section>
 
-    <section class="mt-8 grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
-        <article class="rounded-lg border border-gray-200 bg-white p-5 shadow-sm">
-            <p class="text-sm font-medium text-gray-500">Total aset</p>
-            <p class="mt-3 text-3xl font-semibold text-gray-950">{{ number_format($totalAssets) }}</p>
+            <div class="mt-8 grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
+                <article class="rounded-[24px] bg-white/10 p-5 ring-1 ring-white/10 backdrop-blur-sm">
+                    <p class="text-sm font-medium text-white/70">Total Aset</p>
+                    <p class="mt-3 text-3xl font-black">{{ number_format($totalAssets) }}</p>
+                </article>
+
+                <article class="rounded-[24px] bg-emerald-400/15 p-5 ring-1 ring-emerald-200/20 backdrop-blur-sm">
+                    <p class="text-sm font-medium text-emerald-100">Tersedia</p>
+                    <p class="mt-3 text-3xl font-black text-white">{{ number_format($statusCounts['available']) }}</p>
+                </article>
+
+                <article class="rounded-[24px] bg-sky-400/15 p-5 ring-1 ring-sky-200/20 backdrop-blur-sm">
+                    <p class="text-sm font-medium text-sky-100">Sedang Dipakai</p>
+                    <p class="mt-3 text-3xl font-black text-white">{{ number_format($statusCounts['in_use']) }}</p>
+                </article>
+
+                <article class="rounded-[24px] bg-amber-300/15 p-5 ring-1 ring-amber-100/20 backdrop-blur-sm">
+                    <p class="text-sm font-medium text-amber-100">Perawatan</p>
+                    <p class="mt-3 text-3xl font-black text-white">{{ number_format($statusCounts['maintenance']) }}</p>
+                </article>
+            </div>
         </article>
 
-        <article class="rounded-lg border border-emerald-200 bg-white p-5 shadow-sm">
-            <p class="text-sm font-medium text-emerald-700">Tersedia</p>
-            <p class="mt-3 text-3xl font-semibold text-emerald-900">{{ number_format($statusCounts['available']) }}</p>
-        </article>
-
-        <article class="rounded-lg border border-sky-200 bg-white p-5 shadow-sm">
-            <p class="text-sm font-medium text-sky-700">Sedang dipakai</p>
-            <p class="mt-3 text-3xl font-semibold text-sky-900">{{ number_format($statusCounts['in_use']) }}</p>
-        </article>
-
-        <article class="rounded-lg border border-amber-200 bg-white p-5 shadow-sm">
-            <p class="text-sm font-medium text-amber-700">Sedang diperbaiki</p>
-            <p class="mt-3 text-3xl font-semibold text-amber-900">{{ number_format($statusCounts['maintenance']) }}</p>
-        </article>
-    </section>
-
-    <section class="mt-10 grid gap-8 lg:grid-cols-[1.7fr_1fr]">
-        <div>
-            <div class="flex items-center justify-between">
+        <article class="rounded-[28px] bg-white p-7 shadow-sm ring-1 ring-black/5 lg:p-8">
+            <div class="flex items-center justify-between gap-4">
                 <div>
-                    <h2 class="text-lg font-semibold text-gray-950">Aset terbaru</h2>
-                    
+                    <p class="text-sm font-semibold uppercase tracking-[0.2em] text-slate-400">Akses Cepat</p>
+                    <h2 class="mt-2 text-2xl font-black tracking-tight text-slate-950">Modul Utama</h2>
                 </div>
-                <a class="text-sm font-medium text-sky-700 hover:text-sky-900" href="{{ route('web.assets.index') }}">See all</a>
+                <a class="text-sm font-semibold text-[#33457f] hover:text-[#25315a]" href="{{ route('web.asset-search.index') }}">
+                    Buka pencarian
+                </a>
             </div>
 
-            <div class="mt-4 overflow-hidden rounded-lg border border-gray-200 bg-white shadow-sm">
-                <table class="min-w-full divide-y divide-gray-200 text-sm">
-                    <thead class="bg-gray-50 text-left text-gray-500">
-                        <tr>
-                            <th class="px-4 py-3 font-medium">Asset</th>
-                            <th class="px-4 py-3 font-medium">Category</th>
-                            <th class="px-4 py-3 font-medium">Location</th>
-                            <th class="px-4 py-3 font-medium">Status</th>
-                        </tr>
-                    </thead>
-                    <tbody class="divide-y divide-gray-200">
-                        @forelse ($recentAssets as $asset)
-                            <tr class="bg-white">
-                                <td class="px-4 py-3">
-                                    <a class="font-medium text-gray-950 hover:text-sky-800" href="{{ route('web.assets.show', $asset) }}">{{ $asset->name }}</a>
-                                    <p class="text-xs text-gray-500">{{ $asset->asset_code }}</p>
-                                </td>
-                                <td class="px-4 py-3 text-gray-700">{{ $asset->category?->name ?? 'Uncategorized' }}</td>
-                                <td class="px-4 py-3 text-gray-700">{{ $asset->currentLocation?->name ?? 'Unassigned' }}</td>
-                                <td class="px-4 py-3">
-                                    <span class="rounded-full bg-gray-100 px-2.5 py-1 text-xs font-medium text-gray-700">{{ str($asset->status?->value ?? 'unknown')->headline() }}</span>
-                                </td>
-                            </tr>
-                        @empty
-                            <tr>
-                                <td class="px-4 py-6 text-gray-600" colspan="4">No assets have been added yet.</td>
-                            </tr>
-                        @endforelse
-                    </tbody>
-                </table>
+            <div class="mt-6 grid gap-3 sm:grid-cols-2">
+                <a class="rounded-[22px] border border-slate-200 bg-slate-50 px-5 py-5 transition hover:border-slate-300 hover:bg-white" href="{{ route('web.asset-search.index') }}">
+                    <p class="text-sm font-semibold text-slate-500">Pencarian Aset</p>
+                    <p class="mt-2 text-lg font-bold text-slate-950">Cari aset dengan cepat</p>
+                </a>
+
+                <a class="rounded-[22px] border border-slate-200 bg-slate-50 px-5 py-5 transition hover:border-slate-300 hover:bg-white" href="{{ route('web.damage-reports.index') }}">
+                    <p class="text-sm font-semibold text-slate-500">Damage Reports</p>
+                    <p class="mt-2 text-lg font-bold text-slate-950">Tinjau laporan aktif</p>
+                </a>
+
+                <a class="rounded-[22px] border border-slate-200 bg-slate-50 px-5 py-5 transition hover:border-slate-300 hover:bg-white" href="{{ route('web.locations.index') }}">
+                    <p class="text-sm font-semibold text-slate-500">Ruangan & Gedung</p>
+                    <p class="mt-2 text-lg font-bold text-slate-950">Kelola data ruangan</p>
+                </a>
+
+                <a class="rounded-[22px] border border-slate-200 bg-slate-50 px-5 py-5 transition hover:border-slate-300 hover:bg-white" href="{{ route('web.assets.index') }}">
+                    <p class="text-sm font-semibold text-slate-500">Browse Asset</p>
+                    <p class="mt-2 text-lg font-bold text-slate-950">Lihat inventaris lengkap</p>
+                </a>
             </div>
+        </article>
+    </section>
+
+    <section class="mt-6 rounded-[28px] bg-white shadow-sm ring-1 ring-black/5">
+        <div class="flex flex-col gap-3 border-b border-slate-200 px-6 py-5 sm:flex-row sm:items-center sm:justify-between lg:px-8">
+            <div>
+                <p class="text-sm font-semibold uppercase tracking-[0.2em] text-slate-400">Inventaris Terbaru</p>
+                <h2 class="mt-2 text-2xl font-black tracking-tight text-slate-950">Aset Terakhir yang Ditambahkan</h2>
+            </div>
+            <a class="text-sm font-semibold text-[#33457f] hover:text-[#25315a]" href="{{ route('web.assets.index') }}">
+                Lihat semua aset
+            </a>
         </div>
 
-        <div class="space-y-4">
-            <section class="rounded-lg border border-gray-200 bg-white p-5 shadow-sm">
-                <h2 class="text-lg font-semibold text-gray-950">What this app now does</h2>
-                <ul class="mt-4 space-y-3 text-sm text-gray-600">
-                    <li>Browse and filter the hospital asset inventory in a Blade-driven workflow.</li>
-                    <li>Create and update full asset records with category, location, and map placement data.</li>
-                    <li>Manage QR label lifecycle as dedicated actions from each asset record.</li>
-                </ul>
-            </section>
-
-            <section class="rounded-lg border border-gray-200 bg-white p-5 shadow-sm">
-                <h2 class="text-lg font-semibold text-gray-950">Next likely follow-ups</h2>
-                <ul class="mt-4 space-y-3 text-sm text-gray-600">
-                    <li>Reference-data CRUD for categories and locations.</li>
-                    <li>Repair-update and movement history UI flows.</li>
-                    <li>Retirement of API endpoints once the Blade flows cover the team’s needs.</li>
-                </ul>
-            </section>
+        <div class="overflow-x-auto">
+            <table class="min-w-full divide-y divide-slate-200 text-sm">
+                <thead class="bg-slate-50/80 text-left text-slate-500">
+                    <tr>
+                        <th class="px-6 py-4 font-semibold lg:px-8">Aset</th>
+                        <th class="px-6 py-4 font-semibold">Kategori</th>
+                        <th class="px-6 py-4 font-semibold">Ruangan</th>
+                        <th class="px-6 py-4 font-semibold">Status</th>
+                    </tr>
+                </thead>
+                <tbody class="divide-y divide-slate-200">
+                    @forelse ($recentAssets as $asset)
+                        <tr class="bg-white">
+                            <td class="px-6 py-4 lg:px-8">
+                                <a class="font-semibold text-slate-950 hover:text-[#33457f]" href="{{ route('web.assets.show', $asset) }}">{{ $asset->name }}</a>
+                                <p class="mt-1 text-xs text-slate-500">{{ $asset->asset_code }}</p>
+                            </td>
+                            <td class="px-6 py-4 text-slate-700">{{ $asset->category?->name ?? 'Tanpa kategori' }}</td>
+                            <td class="px-6 py-4 text-slate-700">{{ $asset->currentLocation?->name ?? 'Belum ditetapkan' }}</td>
+                            <td class="px-6 py-4">
+                                <span class="rounded-full bg-slate-100 px-3 py-1 text-xs font-semibold text-slate-700">{{ str($asset->status?->value ?? 'unknown')->headline() }}</span>
+                            </td>
+                        </tr>
+                    @empty
+                        <tr>
+                            <td class="px-6 py-10 text-center text-slate-500 lg:px-8" colspan="4">Belum ada aset yang ditambahkan.</td>
+                        </tr>
+                    @endforelse
+                </tbody>
+            </table>
         </div>
     </section>
 @endsection

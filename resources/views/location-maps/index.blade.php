@@ -11,29 +11,8 @@
 
         <div class="flex flex-wrap gap-3">
             <a class="rounded-md border border-gray-300 px-4 py-2 text-sm font-medium text-gray-700 hover:border-gray-400 hover:text-gray-950" href="{{ route('web.locations.index') }}">Kembali ke Ruangan</a>
-            <a class="rounded-md bg-gray-950 px-4 py-2 text-sm font-medium text-white hover:bg-gray-800" href="{{ route('web.location-maps.create', request('location_id') ? ['location_id' => request('location_id')] : []) }}">Tambah Gedung</a>
+            <a class="rounded-md bg-gray-950 px-4 py-2 text-sm font-medium text-white hover:bg-gray-800" href="{{ route('web.location-maps.create') }}">Tambah Gedung</a>
         </div>
-    </section>
-
-    <section class="mt-8 rounded-lg border border-gray-200 bg-white p-5 shadow-sm">
-        <form action="{{ route('web.location-maps.index') }}" class="grid gap-4 lg:grid-cols-[minmax(0,2fr)_auto] lg:items-end">
-            <div>
-                <label class="block text-sm font-medium text-gray-900" for="location_id">Location</label>
-                <select class="mt-2 block w-full rounded-md border border-gray-300 bg-white px-3 py-2 text-sm text-gray-900 focus:border-cyan-500 focus:outline-none focus:ring-2 focus:ring-cyan-200" id="location_id" name="location_id">
-                    <option value="">All locations TODO: Delete this filter as part of rebranding to "Gedung" and also to make location_map self-sufficient table</option>
-                    @foreach ($locations as $location)
-                        <option value="{{ $location->id }}" @selected((string) request('location_id') === (string) $location->id)>
-                            {{ $location->name }} ({{ $location->code }})
-                        </option>
-                    @endforeach
-                </select>
-            </div>
-
-            <div class="flex items-end gap-3">
-                <button class="rounded-md bg-gray-950 px-4 py-2 text-sm font-medium text-white hover:bg-gray-800" type="submit">Filter</button>
-                <a class="rounded-md border border-gray-300 px-4 py-2 text-sm font-medium text-gray-700 hover:border-gray-400 hover:text-gray-950" href="{{ route('web.location-maps.index') }}">Reset</a>
-            </div>
-        </form>
     </section>
 
     <section class="mt-6 overflow-hidden rounded-lg border border-gray-200 bg-white shadow-sm">
@@ -42,7 +21,7 @@
                 <thead class="bg-gray-50 text-left text-gray-500">
                     <tr>
                         <th class="px-4 py-3 font-medium">Nama Gedung</th>
-                        <th class="px-4 py-3 font-medium">Location TODO: Delete this column as part of rebranding to "Gedung" and also to make location_map self-sufficient table</th>
+                        <th class="px-4 py-3 font-medium">Jumlah Ruangan</th>
                         <th class="px-4 py-3 font-medium">Notes</th>
                         <th class="px-4 py-3 font-medium">Actions</th>
                     </tr>
@@ -53,14 +32,7 @@
                             <td class="px-4 py-4">
                                 <a class="font-medium text-gray-950 hover:text-cyan-800" href="{{ route('web.location-maps.show', $map) }}">{{ $map->name }}</a>
                             </td>
-                            <td class="px-4 py-4 text-gray-700">
-                                @if ($map->location)
-                                    <a class="hover:text-amber-800" href="{{ route('web.locations.show', $map->location) }}">{{ $map->location->name }}</a>
-                                    <p class="mt-1 text-xs text-gray-500">{{ $map->location->code }}</p>
-                                @else
-                                    Unknown location
-                                @endif
-                            </td>
+                            <td class="px-4 py-4 text-gray-700">{{ $map->locations_count }}</td>
                             <td class="px-4 py-4 text-gray-700">{{ $map->notes ?: 'No notes recorded.' }}</td>
                             <td class="px-4 py-4">
                                 <div class="flex flex-wrap gap-2">

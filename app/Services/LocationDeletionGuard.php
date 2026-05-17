@@ -10,9 +10,7 @@ class LocationDeletionGuard
 
     public function isBlocked(Location $location): bool
     {
-        return $location->children()->exists()
-            || $location->maps()->exists()
-            || $location->currentAssets()->exists()
+        return $location->currentAssets()->exists()
             || $location->incomingMovements()->exists()
             || $location->outgoingMovements()->exists()
             || $location->trackingEvents()->exists()

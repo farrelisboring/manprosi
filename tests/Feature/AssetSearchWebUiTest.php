@@ -33,8 +33,8 @@ class AssetSearchWebUiTest extends TestCase
 
         $this->get('/assets/search')
             ->assertOk()
-            ->assertSee('Search hospital assets')
-            ->assertSee('Start with a search term')
+            ->assertSee('Pencarian Aset')
+            ->assertSee('Mulai dengan kata kunci')
             ->assertDontSee('Hidden Monitor');
     }
 
@@ -140,7 +140,7 @@ class AssetSearchWebUiTest extends TestCase
 
         $this->get('/assets/search?search=NoMatchHere')
             ->assertOk()
-            ->assertSee('No assets matched "NoMatchHere" with the current filters.', false);
+            ->assertSee('Tidak ada aset yang cocok dengan "NoMatchHere" untuk filter saat ini.', false);
     }
 
     private function createCategory(string $code = 'CAT-SEARCH', string $name = 'Imaging'): AssetCategory

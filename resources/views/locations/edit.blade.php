@@ -20,7 +20,7 @@
         <form action="{{ route('web.locations.update', $location) }}" method="POST">
             @include('locations._form', [
                 'location' => $location,
-                'submitLabel' => 'Save location',
+                'submitLabel' => 'Simpan Perubahan',
                 'cancelUrl' => route('web.locations.show', $location),
             ])
         </form>

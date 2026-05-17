@@ -1,29 +1,29 @@
 @extends('layouts.app')
 
 @section('title', 'Locations | Hospital Asset Manager')
+@section('page-eyebrow', 'Data Referensi')
+@section('page-heading', 'Ruangan & Gedung')
+
+@section('page-actions')
+    <a class="rounded-full border border-slate-200 px-5 py-3 text-sm font-semibold text-slate-700 transition hover:border-slate-300 hover:text-slate-950" href="{{ route('web.location-assets.index') }}">
+        Aset per Ruangan
+    </a>
+    <a class="rounded-full border border-slate-200 px-5 py-3 text-sm font-semibold text-slate-700 transition hover:border-slate-300 hover:text-slate-950" href="{{ route('web.location-maps.index') }}">
+        Kelola Gedung
+    </a>
+    <a class="rounded-full bg-slate-950 px-5 py-3 text-sm font-semibold text-white transition hover:bg-slate-800" href="{{ route('web.locations.create') }}">
+        Ruangan Baru
+    </a>
+@endsection
 
 @section('content')
-    <section class="flex flex-col gap-3 lg:flex-row lg:items-end lg:justify-between">
-        <div>
-            <p class="text-sm font-medium text-amber-700">Informasi Ruangan</p>
-            <h1 class="text-3xl font-semibold text-gray-950">Ruangan</h1>
-        </div>
-
-        <div class="flex flex-wrap gap-3">
-            <a class="rounded-md border border-gray-300 px-4 py-2 text-sm font-medium text-gray-700 hover:border-gray-400 hover:text-gray-950" href="{{ route('web.location-assets.index') }}">Lihat Aset Ruangan</a>
-            <a class="rounded-md border border-gray-300 px-4 py-2 text-sm font-medium text-gray-700 hover:border-gray-400 hover:text-gray-950" href="{{ route('web.location-maps.index') }}">Tambah Gedung</a>
-            <a class="rounded-md bg-gray-950 px-4 py-2 text-sm font-medium text-white hover:bg-gray-800" href="{{ route('web.locations.create') }}">Lokasi Baru</a>
-        </div>
-    </section>
-
-    <section class="mt-8 overflow-hidden rounded-lg border border-gray-200 bg-white shadow-sm">
+    <section class="overflow-hidden rounded-[28px] border border-slate-200 bg-white shadow-sm">
         <div class="overflow-x-auto">
             <table class="min-w-full divide-y divide-gray-200 text-sm">
                 <thead class="bg-gray-50 text-left text-gray-500">
                     <tr>
                         <th class="px-4 py-3 font-medium">Nama Ruangan</th>
-                        <th class="px-4 py-3 font-medium">Gedung TODO: This should be location_maps.name</th>
-                        <th class="px-4 py-3 font-medium">TODO: Delete this column visually from the UI</th>
+                        <th class="px-4 py-3 font-medium">Gedung</th>
                         <th class="px-4 py-3 font-medium">Lantai</th>
                         <th class="px-4 py-3 font-medium">Status</th>
                         <th class="px-4 py-3 font-medium"></th>
@@ -37,14 +37,13 @@
                                 <p class="mt-1 text-xs text-gray-500">{{ $location->code }}</p>
                             </td>
                             <td class="px-4 py-4 text-gray-700">
-                                @if ($location->parent)
-                                    <a class="hover:text-amber-800" href="{{ route('web.locations.show', $location->parent) }}">{{ $location->parent->name }}</a>
+                                @if ($location->locationMap)
+                                    <a class="hover:text-cyan-800" href="{{ route('web.location-maps.show', $location->locationMap) }}">{{ $location->locationMap->name }}</a>
                                 @else
-                                    No parent
+                                    Belum dipilih
                                 @endif
                             </td>
-                            <td class="px-4 py-4 text-gray-700">{{ $location->type }}</td>
-                            <td class="px-4 py-4 text-gray-700">{{ $location->floor_number !== null ? 'Floor '.$location->floor_number : 'Not set' }}</td>
+                            <td class="px-4 py-4 text-gray-700">{{ $location->floor_number !== null ? 'Lantai '.$location->floor_number : 'Belum diatur' }}</td>
                             <td class="px-4 py-4">
                                 <span class="rounded-full {{ $location->is_active ? 'bg-emerald-100 text-emerald-800' : 'bg-gray-100 text-gray-700' }} px-2.5 py-1 text-xs font-medium">
                                     {{ $location->is_active ? 'Active' : 'Inactive' }}
@@ -54,7 +53,9 @@
                                 <div class="flex flex-wrap gap-2">
                                     <a class="rounded-md border border-gray-300 px-3 py-2 text-xs font-medium text-gray-700 hover:border-gray-400 hover:text-gray-950" href="{{ route('web.locations.show', $location) }}">View</a>
                                     <a class="rounded-md border border-gray-300 px-3 py-2 text-xs font-medium text-gray-700 hover:border-gray-400 hover:text-gray-950" href="{{ route('web.locations.edit', $location) }}">Edit</a>
-                                    <a class="rounded-md border border-gray-300 px-3 py-2 text-xs font-medium text-gray-700 hover:border-gray-400 hover:text-gray-950" href="{{ route('web.location-maps.index', ['location_id' => $location->id]) }}">Maps</a>
+                                    @if ($location->locationMap)
+                                        <a class="rounded-md border border-gray-300 px-3 py-2 text-xs font-medium text-gray-700 hover:border-gray-400 hover:text-gray-950" href="{{ route('web.location-maps.show', $location->locationMap) }}">Gedung</a>
+                                    @endif
 
                                     @if (in_array($location->id, $blockedDeletionIds, true))
                                         <button
@@ -76,7 +77,7 @@
                         </tr>
                     @empty
                         <tr>
-                            <td class="px-4 py-10 text-center text-gray-600" colspan="6">No locations have been created yet.</td>
+                            <td class="px-4 py-10 text-center text-gray-600" colspan="5">No locations have been created yet.</td>
                         </tr>
                     @endforelse
                 </tbody>

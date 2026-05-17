@@ -6,12 +6,12 @@
 
 <div class="grid gap-6 lg:grid-cols-2">
     <div>
-        <label class="block text-sm font-medium text-gray-900" for="parent_id">Gedung</label>
-        <select class="mt-2 block w-full rounded-md border border-gray-300 bg-white px-3 py-2 text-sm text-gray-900 focus:border-amber-500 focus:outline-none focus:ring-2 focus:ring-amber-200" id="parent_id" name="parent_id">
-            <option value="">No parent location TODO: This should point to a location_maps row since i'm rebranding that to be a "Gedung" table</option>
-            @foreach ($parentOptions as $parentOption)
-                <option value="{{ $parentOption->id }}" @selected((string) old('parent_id', $location?->parent_id) === (string) $parentOption->id)>
-                    {{ $parentOption->name }} ({{ $parentOption->code }}){{ $parentOption->floor_number !== null ? ' - Floor '.$parentOption->floor_number : '' }}
+        <label class="block text-sm font-medium text-gray-900" for="location_map_id">Gedung</label>
+        <select class="mt-2 block w-full rounded-md border border-gray-300 bg-white px-3 py-2 text-sm text-gray-900 focus:border-amber-500 focus:outline-none focus:ring-2 focus:ring-amber-200" id="location_map_id" name="location_map_id">
+            <option value="">Pilih jika ada</option>
+            @foreach ($locationMapOptions as $locationMapOption)
+                <option value="{{ $locationMapOption->id }}" @selected((string) old('location_map_id', $location?->location_map_id) === (string) $locationMapOption->id)>
+                    {{ $locationMapOption->name }}
                 </option>
             @endforeach
         </select>
@@ -77,12 +77,12 @@
             value="1"
             @checked(old('is_active', $location?->is_active ?? true))
         >
-        <label class="text-sm font-medium text-gray-900" for="is_active">Keep this location active and selectable in the app</label>
+        <label class="text-sm font-medium text-gray-900" for="is_active">Tetap aktif dan bisa dipilih di aplikasi</label>
     </div>
 </div>
 
 <div class="mt-6">
-    <label class="block text-sm font-medium text-gray-900" for="description">Description</label>
+    <label class="block text-sm font-medium text-gray-900" for="description">Deskripsi</label>
     <textarea class="mt-2 block min-h-32 w-full rounded-md border border-gray-300 bg-white px-3 py-2 text-sm text-gray-900 focus:border-amber-500 focus:outline-none focus:ring-2 focus:ring-amber-200" id="description" name="description">{{ old('description', $location?->description) }}</textarea>
 </div>
 
@@ -91,6 +91,6 @@
         {{ $submitLabel }}
     </button>
     <a class="rounded-md border border-gray-300 px-4 py-2 text-sm font-medium text-gray-700 hover:border-gray-400 hover:text-gray-950" href="{{ $cancelUrl }}">
-        Cancel
+        Batal
     </a>
 </div>

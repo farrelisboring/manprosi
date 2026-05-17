@@ -145,18 +145,18 @@ class DamageReportController extends Controller
             ])],
             'severity' => ['nullable', Rule::enum(DamageSeverity::class)],
             'location_id' => ['nullable', 'integer', Rule::exists('locations', 'id')],
-            'date_from' => ['nullable', 'date_format:d/m/Y'],
-            'date_to' => ['nullable', 'date_format:d/m/Y'],
+            'date_from' => ['nullable', 'date'],
+            'date_to' => ['nullable', 'date'],
         ];
     }
 
     private function normalizeFilterDates(array $validated): array
     {
         $dateFrom = filled($validated['date_from'] ?? null)
-            ? Carbon::createFromFormat('d/m/Y', $validated['date_from'])->startOfDay()
+            ? Carbon::parse($validated['date_from'])->startOfDay()
             : null;
         $dateTo = filled($validated['date_to'] ?? null)
-            ? Carbon::createFromFormat('d/m/Y', $validated['date_to'])->endOfDay()
+            ? Carbon::parse($validated['date_to'])->endOfDay()
             : null;
 
         if ($dateFrom && $dateTo && $dateTo->lt($dateFrom)) {

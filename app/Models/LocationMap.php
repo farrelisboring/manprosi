@@ -26,6 +26,11 @@ class LocationMap extends Model
         return $this->belongsTo(Location::class, 'location_id');
     }
 
+    public function locations(): HasMany
+    {
+        return $this->hasMany(Location::class, 'location_map_id');
+    }
+
     public function assets(): HasMany
     {
         return $this->hasMany(Asset::class, 'current_map_id');

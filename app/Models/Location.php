@@ -10,7 +10,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
-#[Fillable(['parent_id', 'code', 'name', 'type', 'floor_number', 'description', 'is_active'])]
+#[Fillable(['parent_id', 'location_map_id', 'code', 'name', 'type', 'floor_number', 'description', 'is_active'])]
 class Location extends Model
 {
     use HasFactory, SoftDeletes;
@@ -31,6 +31,11 @@ class Location extends Model
     public function children(): HasMany
     {
         return $this->hasMany(self::class, 'parent_id');
+    }
+
+    public function locationMap(): BelongsTo
+    {
+        return $this->belongsTo(LocationMap::class, 'location_map_id');
     }
 
     public function maps(): HasMany
