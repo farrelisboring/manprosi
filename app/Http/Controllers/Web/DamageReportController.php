@@ -12,18 +12,21 @@ use App\Models\Asset;
 use App\Models\DamageReport;
 use App\Models\Location;
 use App\Models\User;
+use Carbon\Carbon;
 use Illuminate\Contracts\View\View;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Str;
 use Illuminate\Validation\Rule;
+use Illuminate\Validation\ValidationException;
 
 class DamageReportController extends Controller
 {
     public function index(Request $request): View
     {
         $validated = $request->validate($this->filterRules());
+        $validated = $this->normalizeFilterDates($validated);
         $selectedStatusFilter = $validated['status'] ?? '';
         $showOpenOnly = ! filled($selectedStatusFilter);
         $reportFilters = $validated;
@@ -45,7 +48,6 @@ class DamageReportController extends Controller
             'summaryCounts' => $this->summaryCounts($validated),
             'assets' => $this->assets(),
             'locations' => $this->locations(),
-            'users' => $this->users(),
             'severityOptions' => DamageSeverity::cases(),
             'statusOptions' => DamageStatus::cases(),
             'selectedStatusFilter' => $selectedStatusFilter,
@@ -143,10 +145,35 @@ class DamageReportController extends Controller
             ])],
             'severity' => ['nullable', Rule::enum(DamageSeverity::class)],
             'location_id' => ['nullable', 'integer', Rule::exists('locations', 'id')],
-            'reported_by_user_id' => ['nullable', 'integer', Rule::exists('users', 'id')],
-            'date_from' => ['nullable', 'date'],
-            'date_to' => ['nullable', 'date', 'after_or_equal:date_from'],
+            'date_from' => ['nullable', 'date_format:d/m/Y'],
+            'date_to' => ['nullable', 'date_format:d/m/Y'],
         ];
+    }
+
+    private function normalizeFilterDates(array $validated): array
+    {
+        $dateFrom = filled($validated['date_from'] ?? null)
+            ? Carbon::createFromFormat('d/m/Y', $validated['date_from'])->startOfDay()
+            : null;
+        $dateTo = filled($validated['date_to'] ?? null)
+            ? Carbon::createFromFormat('d/m/Y', $validated['date_to'])->endOfDay()
+            : null;
+
+        if ($dateFrom && $dateTo && $dateTo->lt($dateFrom)) {
+            throw ValidationException::withMessages([
+                'date_to' => 'The end date must be on or after the start date.',
+            ]);
+        }
+
+        if ($dateFrom) {
+            $validated['date_from'] = $dateFrom->toDateTimeString();
+        }
+
+        if ($dateTo) {
+            $validated['date_to'] = $dateTo->toDateTimeString();
+        }
+
+        return $validated;
     }
 
     private function summaryCounts(array $validated): array

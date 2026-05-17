@@ -5,15 +5,13 @@
 @section('content')
     <section class="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
         <div>
-            <p class="text-sm font-medium text-violet-700">Asset lookup</p>
-            <h1 class="text-3xl font-semibold text-gray-950">Search hospital assets</h1>
-            <p class="mt-2 max-w-3xl text-sm text-gray-600">
-                Quickly find a known asset by code, name, serial number, barcode, QR label, RFID tag, or category.
-            </p>
+            <p class="text-sm font-medium text-violet-700">Pencarian Asset</p>
+            <h1 class="text-3xl font-semibold text-gray-950">Pencarian Asset Rumah Sakit</h1>
+            
         </div>
 
         <a class="rounded-md border border-gray-300 px-4 py-2 text-sm font-medium text-gray-700 hover:border-gray-400 hover:text-gray-950" href="{{ route('web.assets.index') }}">
-            Browse inventory
+            Lihat Persediaan
         </a>
     </section>
 
@@ -21,13 +19,13 @@
         <form action="{{ route('web.asset-search.index') }}" class="grid gap-4 lg:grid-cols-[2fr_1fr_1fr_1fr_auto]">
             <div>
                 <label class="block text-sm font-medium text-gray-900" for="search">Search</label>
-                <input class="mt-2 block w-full rounded-md border border-gray-300 bg-white px-3 py-2 text-sm text-gray-900 focus:border-violet-500 focus:outline-none focus:ring-2 focus:ring-violet-200" id="search" name="search" type="text" value="{{ request('search') }}" placeholder="Asset code, name, serial, barcode, QR, RFID, category">
+                <input class="mt-2 block w-full rounded-md border border-gray-300 bg-white px-3 py-2 text-sm text-gray-900 focus:border-violet-500 focus:outline-none focus:ring-2 focus:ring-violet-200" id="search" name="search" type="text" value="{{ request('search') }}" placeholder="Nama Asset">
             </div>
 
             <div>
                 <label class="block text-sm font-medium text-gray-900" for="category_id">Category</label>
                 <select class="mt-2 block w-full rounded-md border border-gray-300 bg-white px-3 py-2 text-sm text-gray-900 focus:border-violet-500 focus:outline-none focus:ring-2 focus:ring-violet-200" id="category_id" name="category_id">
-                    <option value="">All categories</option>
+                    <option value="">Semua Kategori</option>
                     @foreach ($categories as $category)
                         <option value="{{ $category->id }}" @selected((string) request('category_id') === (string) $category->id)>
                             {{ $category->name }}
@@ -39,7 +37,7 @@
             <div>
                 <label class="block text-sm font-medium text-gray-900" for="current_location_id">Location</label>
                 <select class="mt-2 block w-full rounded-md border border-gray-300 bg-white px-3 py-2 text-sm text-gray-900 focus:border-violet-500 focus:outline-none focus:ring-2 focus:ring-violet-200" id="current_location_id" name="current_location_id">
-                    <option value="">All locations</option>
+                    <option value="">Semua Lokasi</option>
                     @foreach ($locations as $location)
                         <option value="{{ $location->id }}" @selected((string) request('current_location_id') === (string) $location->id)>
                             {{ $location->name }}
@@ -51,7 +49,7 @@
             <div>
                 <label class="block text-sm font-medium text-gray-900" for="status">Status</label>
                 <select class="mt-2 block w-full rounded-md border border-gray-300 bg-white px-3 py-2 text-sm text-gray-900 focus:border-violet-500 focus:outline-none focus:ring-2 focus:ring-violet-200" id="status" name="status">
-                    <option value="">All statuses</option>
+                    <option value="">Semua Status</option>
                     @foreach ($statusOptions as $status)
                         <option value="{{ $status->value }}" @selected(request('status') === $status->value)>
                             {{ str($status->value)->headline() }}
@@ -61,7 +59,7 @@
             </div>
 
             <div class="flex items-end gap-3">
-                <button class="rounded-md bg-gray-950 px-4 py-2 text-sm font-medium text-white hover:bg-gray-800" type="submit">Search</button>
+                <button class="rounded-md bg-gray-950 px-4 py-2 text-sm font-medium text-white hover:bg-gray-800" type="submit">Telusuri</button>
                 <a class="rounded-md border border-gray-300 px-4 py-2 text-sm font-medium text-gray-700 hover:border-gray-400 hover:text-gray-950" href="{{ route('web.asset-search.index') }}">Reset</a>
             </div>
         </form>
@@ -69,8 +67,7 @@
 
     @if (! $hasSearch)
         <section class="mt-6 rounded-lg border border-dashed border-gray-300 bg-white p-8 text-center shadow-sm">
-            <h2 class="text-lg font-semibold text-gray-950">Start with a search term</h2>
-            <p class="mt-2 text-sm text-gray-600">Enter a code, name, serial, barcode, QR label, RFID tag, or category to search the asset inventory.</p>
+            
         </section>
     @else
         <section class="mt-6 overflow-hidden rounded-lg border border-gray-200 bg-white shadow-sm">

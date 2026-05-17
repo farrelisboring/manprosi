@@ -183,8 +183,21 @@ const setupQrLabelPreviews = () => {
     });
 };
 
+const setupBlockedActionPrompts = () => {
+    const blockedActions = document.querySelectorAll('[data-blocked-action-message]');
+
+    blockedActions.forEach((blockedAction) => {
+        blockedAction.addEventListener('click', (event) => {
+            event.preventDefault();
+
+            window.alert(blockedAction.getAttribute('data-blocked-action-message') ?? 'This action is blocked.');
+        });
+    });
+};
+
 document.addEventListener('DOMContentLoaded', () => {
     setupMapDependentAssetForms();
     setupPollers();
     setupQrLabelPreviews();
+    setupBlockedActionPrompts();
 });

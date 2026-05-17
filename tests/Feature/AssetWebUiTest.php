@@ -7,6 +7,7 @@ use App\Models\Asset;
 use App\Models\AssetCategory;
 use App\Models\Location;
 use App\Models\LocationMap;
+use Illuminate\Support\Carbon;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
 
@@ -45,20 +46,22 @@ class AssetWebUiTest extends TestCase
             ->assertSee('Infusion Pump');
     }
 
-    public function test_asset_index_renders_filters_and_preserves_query_string_in_pagination(): void
+    public function test_asset_index_uses_browser_filters_without_name_search_and_preserves_query_string_in_pagination(): void
     {
         $category = $this->createCategory('CAT-WEB-001', 'Imaging');
         $otherCategory = $this->createCategory('CAT-WEB-002', 'Beds');
         $location = $this->createLocation('LOC-WEB-001', 'Ward A');
         $otherLocation = $this->createLocation('LOC-WEB-002', 'Ward B');
 
-        foreach (range(1, 16) as $number) {
+        foreach (range(1, 14) as $number) {
             Asset::create([
                 'asset_code' => 'AST-WEB-'.str_pad((string) $number, 3, '0', STR_PAD_LEFT),
                 'name' => 'Portable Ultrasound '.$number,
                 'category_id' => $category->id,
                 'status' => AssetStatus::Available->value,
                 'current_location_id' => $location->id,
+                'created_at' => Carbon::parse('2026-01-01 08:00:00')->addMinutes($number),
+                'updated_at' => Carbon::parse('2026-01-01 08:00:00')->addMinutes($number),
             ]);
         }
 
@@ -70,16 +73,40 @@ class AssetWebUiTest extends TestCase
             'current_location_id' => $otherLocation->id,
         ]);
 
+        Asset::create([
+            'asset_code' => 'AST-WEB-777',
+            'name' => 'Infusion Pump Browser Candidate',
+            'category_id' => $category->id,
+            'status' => AssetStatus::Available->value,
+            'current_location_id' => $location->id,
+            'created_at' => Carbon::parse('2026-01-01 09:00:00'),
+            'updated_at' => Carbon::parse('2026-01-01 09:00:00'),
+        ]);
+
+        Asset::create([
+            'asset_code' => 'AST-WEB-778',
+            'name' => 'Wheelchair Browser Candidate',
+            'category_id' => $category->id,
+            'status' => AssetStatus::Available->value,
+            'current_location_id' => $location->id,
+            'created_at' => Carbon::parse('2026-01-01 09:01:00'),
+            'updated_at' => Carbon::parse('2026-01-01 09:01:00'),
+        ]);
+
         $response = $this->get('/assets?search=Ultrasound&category_id='.$category->id.'&current_location_id='.$location->id.'&status=available');
 
         $response
             ->assertOk()
+            ->assertSee('Kategori')
+            ->assertDontSee('Telusuri')
             ->assertSee('Portable Ultrasound 1')
+            ->assertSee('Infusion Pump Browser Candidate')
             ->assertDontSee('Patient Bed')
             ->assertSee('page=2', false)
             ->assertSee('category_id='.$category->id, false)
             ->assertSee('current_location_id='.$location->id, false)
-            ->assertSee('status=available', false);
+            ->assertSee('status=available', false)
+            ->assertDontSee('search=Ultrasound', false);
     }
 
     public function test_asset_create_and_edit_pages_render_supporting_data_and_constrained_maps(): void
@@ -110,7 +137,7 @@ class AssetWebUiTest extends TestCase
 
         $this->get('/assets/'.$asset->id.'/edit')
             ->assertOk()
-            ->assertSee('Edit asset')
+            ->assertSee('Edit aset')
             ->assertSee('Ward Alpha Map')
             ->assertSee('Ward Beta Map')
             ->assertSee('data-map-options', false)

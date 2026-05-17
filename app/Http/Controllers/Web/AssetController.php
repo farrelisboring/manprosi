@@ -19,12 +19,14 @@ class AssetController extends Controller
 {
     public function index(Request $request): View
     {
+        $filters = $request->only(['category_id', 'current_location_id', 'status']);
+
         $assets = Asset::query()
             ->with(['category', 'currentLocation', 'currentMap'])
-            ->withFilters($request->only(['search', 'category_id', 'current_location_id', 'status']))
+            ->withFilters($filters)
             ->latest()
             ->paginate(15)
-            ->withQueryString();
+            ->appends($filters);
 
         return view('assets.index', [
             'assets' => $assets,

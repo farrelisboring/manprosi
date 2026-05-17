@@ -60,13 +60,13 @@ class DamageReportWebUiTest extends TestCase
 
         $this->get('/damage-reports')
             ->assertOk()
-            ->assertSee('Damage and repair queue')
+            ->assertSee('Laporan Kerusakan dan Perbaikan')
             ->assertSee($reported->title)
             ->assertSee($inProgress->title)
             ->assertDontSee($resolved->title)
-            ->assertSee('1 reported')
-            ->assertSee('1 in progress')
-            ->assertSee('1 resolved');
+            ->assertSee('1 laporan')
+            ->assertSee('1 sedang diperbaiki')
+            ->assertSee('1 selesai');
     }
 
     public function test_dashboard_status_filter_supports_all_reports_option(): void
@@ -94,7 +94,7 @@ class DamageReportWebUiTest extends TestCase
 
         $this->get('/damage-reports?status=all')
             ->assertOk()
-            ->assertSee('All reports')
+            ->assertSee('Semua Status')
             ->assertSee('value="all" selected', false)
             ->assertSee($reported->title)
             ->assertSee($resolved->title);
@@ -131,18 +131,21 @@ class DamageReportWebUiTest extends TestCase
             'reported_at' => '2026-05-11 12:00:00',
         ]);
 
-        $response = $this->get('/damage-reports?asset_id='.$asset->id.'&status='.DamageStatus::InProgress->value.'&severity='.DamageSeverity::High->value.'&location_id='.$location->id.'&reported_by_user_id='.$reporter->id.'&date_from=2026-05-10T00:00&date_to=2026-05-10T23:59');
+        $response = $this->get('/damage-reports?asset_id='.$asset->id.'&status='.DamageStatus::InProgress->value.'&severity='.DamageSeverity::High->value.'&location_id='.$location->id.'&date_from=10/05/2026&date_to=10/05/2026');
 
         $response
             ->assertOk()
             ->assertSee('Queue issue 1')
             ->assertDontSee('Unrelated report')
+            ->assertDontSee('Reporter')
+            ->assertSee('placeholder="dd/mm/yyyy"', false)
             ->assertSee('page=2', false)
             ->assertSee('asset_id='.$asset->id, false)
             ->assertSee('status='.DamageStatus::InProgress->value, false)
             ->assertSee('severity='.DamageSeverity::High->value, false)
             ->assertSee('location_id='.$location->id, false)
-            ->assertSee('reported_by_user_id='.$reporter->id, false);
+            ->assertSee('date_from=10%2F05%2F2026', false)
+            ->assertSee('date_to=10%2F05%2F2026', false);
     }
 
     public function test_create_pages_render_and_asset_context_preselects_asset(): void

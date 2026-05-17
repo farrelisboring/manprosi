@@ -5,7 +5,7 @@
 @section('content')
     <section class="flex flex-col gap-3 lg:flex-row lg:items-start lg:justify-between">
         <div>
-            <p class="text-sm font-medium text-rose-700">Maintenance workflow</p>
+            <p class="text-sm font-medium text-rose-700">Perbaikan</p>
             <h1 class="text-3xl font-semibold text-gray-950">Edit damage report</h1>
             <p class="mt-2 text-sm text-gray-600">Update the report details while keeping repair history on the report timeline.</p>
         </div>

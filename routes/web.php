@@ -7,7 +7,9 @@ use App\Http\Controllers\Web\AssetQrLabelRedirectController;
 use App\Http\Controllers\Web\AssetSearchController;
 use App\Http\Controllers\Web\DamageReportController;
 use App\Http\Controllers\Web\DashboardController;
+use App\Http\Controllers\Web\LocationController;
 use App\Http\Controllers\Web\LocationAssetController;
+use App\Http\Controllers\Web\LocationMapController;
 use App\Http\Controllers\Web\RepairUpdateController;
 use App\Services\QrCodeValueGenerator;
 use Illuminate\Support\Facades\Route;
@@ -20,6 +22,8 @@ Route::post('/damage-reports/{damageReport}/repair-updates', [RepairUpdateContro
 Route::resource('assets', AssetController::class)->names('web.assets');
 Route::get('/locations/assets', [LocationAssetController::class, 'index'])->name('web.location-assets.index');
 Route::get('/locations/assets/panel', [LocationAssetController::class, 'refresh'])->name('web.location-assets.refresh');
+Route::resource('locations', LocationController::class)->names('web.locations');
+Route::resource('location-maps', LocationMapController::class)->names('web.location-maps');
 
 Route::post('/assets/{asset}/qr-label', [AssetQrLabelController::class, 'store'])->name('web.assets.qr-label.store');
 Route::patch('/assets/{asset}/qr-label', [AssetQrLabelController::class, 'update'])->name('web.assets.qr-label.update');

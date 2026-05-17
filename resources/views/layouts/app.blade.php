@@ -10,8 +10,7 @@
         <header class="border-b border-gray-200 bg-white">
             <div class="mx-auto flex max-w-7xl items-center justify-between gap-6 px-4 py-4 sm:px-6 lg:px-8">
                 <div>
-                    <a class="text-lg font-semibold text-gray-950" href="{{ route('dashboard') }}">Hospital Asset Manager</a>
-                    <p class="text-sm text-gray-600">Blade-first inventory workflows for your asset team.</p>
+                    <a class="text-lg font-semibold text-gray-950" href="{{ route('dashboard') }}">RS WIDJAYA</a>
                 </div>
 
                 <nav class="flex items-center gap-2 text-sm">
@@ -25,31 +24,31 @@
                         class="rounded-md px-3 py-2 font-medium transition {{ request()->routeIs('web.asset-search.*') ? 'bg-violet-100 text-violet-900' : 'text-gray-700 hover:bg-gray-100 hover:text-gray-950' }}"
                         href="{{ route('web.asset-search.index') }}"
                     >
-                        Search
+                        Pencarian
                     </a>
                     <a
                         class="rounded-md px-3 py-2 font-medium transition {{ request()->routeIs('web.assets.*') ? 'bg-sky-100 text-sky-900' : 'text-gray-700 hover:bg-gray-100 hover:text-gray-950' }}"
                         href="{{ route('web.assets.index') }}"
                     >
-                        Assets
+                        Aset
                     </a>
                     <a
                         class="rounded-md px-3 py-2 font-medium transition {{ request()->routeIs('web.damage-reports.*') ? 'bg-rose-100 text-rose-900' : 'text-gray-700 hover:bg-gray-100 hover:text-gray-950' }}"
                         href="{{ route('web.damage-reports.index') }}"
                     >
-                        Maintenance
+                        Laporan Perbaikan & Kerusakan
                     </a>
                     <a
-                        class="rounded-md px-3 py-2 font-medium transition {{ request()->routeIs('web.location-assets.*') ? 'bg-amber-100 text-amber-900' : 'text-gray-700 hover:bg-gray-100 hover:text-gray-950' }}"
-                        href="{{ route('web.location-assets.index') }}"
+                        class="rounded-md px-3 py-2 font-medium transition {{ request()->routeIs('web.locations.*', 'web.location-assets.*') ? 'bg-amber-100 text-amber-900' : 'text-gray-700 hover:bg-gray-100 hover:text-gray-950' }}"
+                        href="{{ route('web.locations.index') }}"
                     >
-                        Locations
+                        Ruangan
                     </a>
                     <a
                         class="rounded-md bg-gray-950 px-3 py-2 font-medium text-white transition hover:bg-gray-800"
                         href="{{ route('web.assets.create') }}"
                     >
-                        Add Asset
+                        Tambah Asset
                     </a>
                 </nav>
             </div>

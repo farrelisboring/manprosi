@@ -5,9 +5,8 @@
 @section('content')
     <section class="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
         <div>
-            <p class="text-sm font-medium text-amber-700">Edit asset</p>
+            <p class="text-sm font-medium text-amber-700">Edit aset</p>
             <h1 class="text-3xl font-semibold text-gray-950">{{ $asset->name }}</h1>
-            <p class="mt-2 text-sm text-gray-600">Update the current record, placement, and supporting details without leaving the Blade workflow.</p>
         </div>
     </section>
 

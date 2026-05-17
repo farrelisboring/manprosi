@@ -11,6 +11,11 @@
                 Pick one active hospital location and review only the assets currently assigned there.
             </p>
         </div>
+
+        <div class="flex flex-wrap gap-3">
+            <a class="rounded-md border border-gray-300 px-4 py-2 text-sm font-medium text-gray-700 hover:border-gray-400 hover:text-gray-950" href="{{ route('web.locations.index') }}">Manage locations</a>
+            <a class="rounded-md border border-gray-300 px-4 py-2 text-sm font-medium text-gray-700 hover:border-gray-400 hover:text-gray-950" href="{{ route('web.location-maps.index') }}">Manage maps</a>
+        </div>
     </section>
 
     <section class="mt-8 rounded-lg border border-gray-200 bg-white p-5 shadow-sm">
