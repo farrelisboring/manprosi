@@ -102,9 +102,7 @@
                                 <span class="rounded-full bg-gray-100 px-2.5 py-1 text-xs font-medium text-gray-700">{{ $statusLabel($asset->status?->value) }}</span>
                             </td>
                             <td class="px-4 py-4 text-xs text-gray-600">
-                                <p>Barcode: {{ $asset->barcode_value ?: 'Belum ada' }}</p>
-                                <p class="mt-1">RFID: {{ $asset->rfid_tag ?: 'Belum ada' }}</p>
-                                <p class="mt-1">QR: {{ $asset->qr_code_value ?: 'Belum ada' }}</p>
+                                <p>QR: {{ $asset->qr_code_value ?: 'Belum ada' }}</p>
                             </td>
                             <td class="px-4 py-4">
                                 <div class="flex flex-wrap gap-2">
