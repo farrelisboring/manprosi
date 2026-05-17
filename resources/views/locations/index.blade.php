@@ -5,12 +5,12 @@
 @section('content')
     <section class="flex flex-col gap-3 lg:flex-row lg:items-end lg:justify-between">
         <div>
-            <p class="text-sm font-medium text-amber-700">Informasi Lokasi</p>
-            <h1 class="text-3xl font-semibold text-gray-950">Lokasi</h1>
+            <p class="text-sm font-medium text-amber-700">Informasi Ruangan</p>
+            <h1 class="text-3xl font-semibold text-gray-950">Ruangan</h1>
         </div>
 
         <div class="flex flex-wrap gap-3">
-            <a class="rounded-md border border-gray-300 px-4 py-2 text-sm font-medium text-gray-700 hover:border-gray-400 hover:text-gray-950" href="{{ route('web.location-assets.index') }}">Lihat Aset Lokasi</a>
+            <a class="rounded-md border border-gray-300 px-4 py-2 text-sm font-medium text-gray-700 hover:border-gray-400 hover:text-gray-950" href="{{ route('web.location-assets.index') }}">Lihat Aset Ruangan</a>
             <a class="rounded-md border border-gray-300 px-4 py-2 text-sm font-medium text-gray-700 hover:border-gray-400 hover:text-gray-950" href="{{ route('web.location-maps.index') }}">Tambah Gedung</a>
             <a class="rounded-md bg-gray-950 px-4 py-2 text-sm font-medium text-white hover:bg-gray-800" href="{{ route('web.locations.create') }}">Lokasi Baru</a>
         </div>
@@ -21,9 +21,9 @@
             <table class="min-w-full divide-y divide-gray-200 text-sm">
                 <thead class="bg-gray-50 text-left text-gray-500">
                     <tr>
-                        <th class="px-4 py-3 font-medium">Lokasi</th>
-                        <th class="px-4 py-3 font-medium">Gedung</th>
-                        <th class="px-4 py-3 font-medium">TODO: DELETE</th>
+                        <th class="px-4 py-3 font-medium">Nama Ruangan</th>
+                        <th class="px-4 py-3 font-medium">Gedung TODO: This should be location_maps.name</th>
+                        <th class="px-4 py-3 font-medium">TODO: Delete this column visually from the UI</th>
                         <th class="px-4 py-3 font-medium">Lantai</th>
                         <th class="px-4 py-3 font-medium">Status</th>
                         <th class="px-4 py-3 font-medium"></th>

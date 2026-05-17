@@ -5,7 +5,7 @@
 @section('content')
     <section class="flex flex-col gap-3 lg:flex-row lg:items-end lg:justify-between">
         <div>
-            <p class="text-sm font-medium text-cyan-700">Informasi Lokasi</p>
+            <p class="text-sm font-medium text-cyan-700">Informasi Gedung</p>
             <h1 class="text-3xl font-semibold text-gray-950">Gedung</h1>
         </div>
 
@@ -20,7 +20,7 @@
             <div>
                 <label class="block text-sm font-medium text-gray-900" for="location_id">Location</label>
                 <select class="mt-2 block w-full rounded-md border border-gray-300 bg-white px-3 py-2 text-sm text-gray-900 focus:border-cyan-500 focus:outline-none focus:ring-2 focus:ring-cyan-200" id="location_id" name="location_id">
-                    <option value="">All locations</option>
+                    <option value="">All locations TODO: Delete this filter as part of rebranding to "Gedung" and also to make location_map self-sufficient table</option>
                     @foreach ($locations as $location)
                         <option value="{{ $location->id }}" @selected((string) request('location_id') === (string) $location->id)>
                             {{ $location->name }} ({{ $location->code }})
@@ -41,8 +41,8 @@
             <table class="min-w-full divide-y divide-gray-200 text-sm">
                 <thead class="bg-gray-50 text-left text-gray-500">
                     <tr>
-                        <th class="px-4 py-3 font-medium">Map</th>
-                        <th class="px-4 py-3 font-medium">Location</th>
+                        <th class="px-4 py-3 font-medium">Nama Gedung</th>
+                        <th class="px-4 py-3 font-medium">Location TODO: Delete this column as part of rebranding to "Gedung" and also to make location_map self-sufficient table</th>
                         <th class="px-4 py-3 font-medium">Notes</th>
                         <th class="px-4 py-3 font-medium">Actions</th>
                     </tr>

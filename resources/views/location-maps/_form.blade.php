@@ -8,7 +8,7 @@
     <div>
         <label class="block text-sm font-medium text-gray-900" for="location_id">Location</label>
         <select class="mt-2 block w-full rounded-md border border-gray-300 bg-white px-3 py-2 text-sm text-gray-900 focus:border-cyan-500 focus:outline-none focus:ring-2 focus:ring-cyan-200" id="location_id" name="location_id" required>
-            <option value="">Choose a location</option>
+            <option value="">Choose a location TODO: Delete this as part of rebranding to "Gedung" and also to make location_map self-sufficient table</option>
             @foreach ($locations as $locationOption)
                 <option value="{{ $locationOption->id }}" @selected((string) old('location_id', $selectedLocationId) === (string) $locationOption->id)>
                     {{ $locationOption->name }} ({{ $locationOption->code }}){{ $locationOption->floor_number !== null ? ' - Floor '.$locationOption->floor_number : '' }}
@@ -18,7 +18,7 @@
     </div>
 
     <div>
-        <label class="block text-sm font-medium text-gray-900" for="name">Map name</label>
+        <label class="block text-sm font-medium text-gray-900" for="name">Nama Gedung</label>
         <input
             class="mt-2 block w-full rounded-md border border-gray-300 bg-white px-3 py-2 text-sm text-gray-900 focus:border-cyan-500 focus:outline-none focus:ring-2 focus:ring-cyan-200"
             id="name"
