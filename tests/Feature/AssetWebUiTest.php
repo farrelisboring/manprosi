@@ -220,6 +220,8 @@ class AssetWebUiTest extends TestCase
             ->assertSee('Assigned')
             ->assertSee('QRWEB12345')
             ->assertSee('data-qr-preview', false)
+            ->assertSee('data-qr-download-link', false)
+            ->assertSee('Download QR image')
             ->assertSee(route('web.qr-labels.redirect', $asset->qr_code_value), false)
             ->assertDontSee('Barcode value')
             ->assertDontSee('Printable code')
@@ -254,6 +256,7 @@ class AssetWebUiTest extends TestCase
         $this->get('/assets/'.$asset->id)
             ->assertOk()
             ->assertSee('data-qr-preview', false)
+            ->assertSee('Download QR image')
             ->assertSee(route('web.qr-labels.redirect', $asset->qr_code_value), false)
             ->assertSee('Rendering QR preview');
 
@@ -284,6 +287,7 @@ class AssetWebUiTest extends TestCase
 
         $this->get('/assets/'.$asset->id)
             ->assertOk()
+            ->assertSee('Download QR image')
             ->assertSee('Generate a QR label to preview the short-link code.')
             ->assertSee('A short-link URL will appear after a QR label is generated.');
     }

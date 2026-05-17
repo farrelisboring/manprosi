@@ -124,12 +124,20 @@ const setupQrLabelPreviews = () => {
         const shortUrl = preview.getAttribute('data-short-url');
         const canvasHost = preview.querySelector('[data-qr-canvas-host]');
         const emptyState = preview.querySelector('[data-qr-empty-state]');
+        const downloadLink = preview.querySelector('[data-qr-download-link]');
+        const downloadName = preview.getAttribute('data-download-name') ?? 'asset-qr-code.png';
 
         if (!canvasHost) {
             return;
         }
 
         canvasHost.innerHTML = '';
+
+        if (downloadLink) {
+            downloadLink.removeAttribute('href');
+            downloadLink.setAttribute('aria-disabled', 'true');
+            downloadLink.classList.add('pointer-events-none', 'opacity-50');
+        }
 
         if (!shortUrl) {
             if (emptyState) {
@@ -155,6 +163,15 @@ const setupQrLabelPreviews = () => {
                 dark: '#111827',
                 light: '#F9FAFB',
             },
+        }).then(() => {
+            if (!downloadLink) {
+                return;
+            }
+
+            downloadLink.href = canvas.toDataURL('image/png');
+            downloadLink.download = downloadName;
+            downloadLink.setAttribute('aria-disabled', 'false');
+            downloadLink.classList.remove('pointer-events-none', 'opacity-50');
         }).catch(() => {
             canvas.remove();
 

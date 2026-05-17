@@ -5,6 +5,7 @@
 @section('content')
     @php
         $qrShortUrl = $asset->qr_code_value ? route('web.qr-labels.redirect', $asset->qr_code_value) : null;
+        $qrDownloadName = 'asset-'.str($asset->asset_code)->slug()->value().'-qr.png';
     @endphp
 
     <section class="flex flex-col gap-3 lg:flex-row lg:items-start lg:justify-between">
@@ -96,6 +97,7 @@
                     data-qr-preview
                     data-qr-value="{{ $asset->qr_code_value ?? '' }}"
                     data-short-url="{{ $qrShortUrl ?? '' }}"
+                    data-download-name="{{ $qrDownloadName }}"
                 >
                     <div class="flex h-48 w-48 items-center justify-center rounded-lg border border-gray-200 bg-white shadow-sm" data-qr-canvas-host>
                         <div class="px-4 text-center text-sm text-gray-500" data-qr-empty-state>
@@ -112,6 +114,17 @@
                         <div>
                             <p class="text-xs font-medium uppercase tracking-wide text-gray-500">Short-link URL</p>
                             <p class="mt-2 break-all text-sm text-gray-700">{{ $qrShortUrl ?: 'A short-link URL will appear after a QR label is generated.' }}</p>
+                        </div>
+
+                        <div class="pt-2">
+                            <a
+                                class="inline-flex items-center rounded-md border border-gray-300 px-3 py-2 text-sm font-medium text-gray-700 transition hover:border-gray-400 hover:text-gray-950"
+                                data-qr-download-link
+                                download="{{ $qrDownloadName }}"
+                                href="{{ $qrShortUrl ? '#' : '' }}"
+                            >
+                                Download QR image
+                            </a>
                         </div>
                     </div>
                 </div>
