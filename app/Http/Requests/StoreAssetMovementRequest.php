@@ -11,6 +11,10 @@ use Illuminate\Validation\Validator;
 
 class StoreAssetMovementRequest extends FormRequest
 {
+    public const EARLIEST_MOVED_AT = '1970-01-01 00:00:01';
+
+    public const LATEST_MOVED_AT = '2038-01-19 03:14:07';
+
     public function authorize(): bool
     {
         return true;
@@ -24,10 +28,18 @@ class StoreAssetMovementRequest extends FormRequest
             'moved_by_user_id' => ['nullable', 'integer', Rule::exists('users', 'id')],
             'reason' => ['nullable', 'string', 'max:255'],
             'notes' => ['nullable', 'string'],
-            'moved_at' => ['nullable', 'date'],
+            'moved_at' => ['required', 'date', 'after_or_equal:'.self::EARLIEST_MOVED_AT, 'before_or_equal:'.self::LATEST_MOVED_AT],
             'current_map_id' => ['nullable', 'integer', Rule::exists('location_maps', 'id'), 'required_with:position_x,position_y'],
-            'position_x' => ['nullable', 'numeric', 'between:-9999.9999,9999.9999', 'required_with:current_map_id,position_y'],
-            'position_y' => ['nullable', 'numeric', 'between:-9999.9999,9999.9999', 'required_with:current_map_id,position_x'],
+            'position_x' => ['nullable', 'numeric', 'between:-9999.9999,9999.9999', 'required_with:position_y'],
+            'position_y' => ['nullable', 'numeric', 'between:-9999.9999,9999.9999', 'required_with:position_x'],
+        ];
+    }
+
+    public function messages(): array
+    {
+        return [
+            'moved_at.after_or_equal' => 'The movement date must be on or after 1970-01-01 00:00.',
+            'moved_at.before_or_equal' => 'The movement date must be on or before 2038-01-19 03:14.',
         ];
     }
 

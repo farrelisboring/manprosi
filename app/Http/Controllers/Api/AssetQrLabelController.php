@@ -72,14 +72,16 @@ class AssetQrLabelController extends Controller
 
     public function resolve(Request $request, string $qrCodeValue): AssetQrLabelResource
     {
+        $normalizedQrCodeValue = QrCodeValueGenerator::normalize($qrCodeValue);
+
         Validator::make([
-            'qr_code_value' => $qrCodeValue,
+            'qr_code_value' => $normalizedQrCodeValue,
         ], [
-            'qr_code_value' => ['required', 'uuid'],
+            'qr_code_value' => ['required', ...QrCodeValueGenerator::validationRules()],
         ])->validate();
 
         $asset = Asset::query()
-            ->where('qr_code_value', $qrCodeValue)
+            ->where('qr_code_value', $normalizedQrCodeValue)
             ->first();
 
         if (! $asset) {

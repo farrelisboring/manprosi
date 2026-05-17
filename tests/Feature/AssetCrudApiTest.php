@@ -29,7 +29,7 @@ class AssetCrudApiTest extends TestCase
             'model' => 'SC-200',
             'serial_number' => 'SN-API-001',
             'barcode_value' => 'BAR-API-001',
-            'qr_code_value' => 'QR-API-001',
+            'qr_code_value' => 'QRA1B2C3D4',
             'rfid_tag' => 'RFID-API-001',
             'current_location_id' => $location->id,
             'current_map_id' => $map->id,
@@ -179,7 +179,7 @@ class AssetCrudApiTest extends TestCase
             'category_id' => $category->id,
             'status' => AssetStatus::Available->value,
             'barcode_value' => 'BAR-DUP-001',
-            'qr_code_value' => 'QR-DUP-001',
+            'qr_code_value' => 'ZX9Y8X7W6V',
             'rfid_tag' => 'RFID-DUP-001',
         ]);
 
@@ -209,6 +209,29 @@ class AssetCrudApiTest extends TestCase
                 'qr_code_value',
                 'rfid_tag',
             ]);
+    }
+
+    public function test_asset_qr_code_values_are_normalized_to_uppercase_and_format_validated(): void
+    {
+        $category = $this->createCategory();
+
+        $this->postJson('/api/assets', [
+            'asset_code' => 'AST-QR-FORMAT-001',
+            'name' => 'Lowercase QR Asset',
+            'category_id' => $category->id,
+            'qr_code_value' => 'jt8jhfk97h',
+        ])
+            ->assertCreated()
+            ->assertJsonPath('data.qr_code_value', 'JT8JHFK97H');
+
+        $this->postJson('/api/assets', [
+            'asset_code' => 'AST-QR-FORMAT-002',
+            'name' => 'Invalid QR Asset',
+            'category_id' => $category->id,
+            'qr_code_value' => 'bad-format',
+        ])
+            ->assertUnprocessable()
+            ->assertJsonValidationErrors(['qr_code_value']);
     }
 
     public function test_asset_update_validation_rejects_duplicate_identifiers(): void

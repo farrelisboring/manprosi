@@ -30,6 +30,7 @@ class DamageReportApiTest extends TestCase
             'reported_by_user_id' => $reporter->id,
             'title' => 'Cracked display',
             'description' => 'The screen is cracked and hard to read.',
+            'reported_at' => '2026-05-10 08:15:00',
         ]);
 
         $response
@@ -229,7 +230,7 @@ class DamageReportApiTest extends TestCase
 
         $this->postJson('/api/damage-reports', [])
             ->assertUnprocessable()
-            ->assertJsonValidationErrors(['asset_id', 'title', 'description']);
+            ->assertJsonValidationErrors(['asset_id', 'title', 'description', 'reported_at']);
 
         $this->postJson('/api/damage-reports', [
             'asset_id' => 999,

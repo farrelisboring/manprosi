@@ -55,4 +55,14 @@ class AssetMovement extends Model
     {
         return $query->orderByDesc('moved_at')->orderByDesc('id');
     }
+
+    public function scopeWithFilters(Builder $query, array $filters): Builder
+    {
+        return $query
+            ->when($filters['movement_source'] ?? null, fn (Builder $builder, $source) => $builder->where('movement_source', $source))
+            ->when(($filters['from_location_id'] ?? null) !== null, fn (Builder $builder) => $builder->where('from_location_id', $filters['from_location_id']))
+            ->when($filters['to_location_id'] ?? null, fn (Builder $builder, $locationId) => $builder->where('to_location_id', $locationId))
+            ->when($filters['date_from'] ?? null, fn (Builder $builder, $date) => $builder->where('moved_at', '>=', $date))
+            ->when($filters['date_to'] ?? null, fn (Builder $builder, $date) => $builder->where('moved_at', '<=', $date));
+    }
 }

@@ -5,6 +5,7 @@ namespace App\Http\Requests;
 use App\Enums\DamageSeverity;
 use App\Enums\DamageStatus;
 use App\Models\DamageReport;
+use App\Services\DamageReportWorkflow;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rule;
 
@@ -13,6 +14,19 @@ class UpdateDamageReportRequest extends FormRequest
     public function authorize(): bool
     {
         return true;
+    }
+
+    protected function prepareForValidation(): void
+    {
+        foreach (['reported_at', 'resolved_at'] as $field) {
+            if (! $this->filled($field)) {
+                continue;
+            }
+
+            $this->merge([
+                $field => str_replace('T', ' ', (string) $this->input($field)),
+            ]);
+        }
     }
 
     public function rules(): array
@@ -32,24 +46,6 @@ class UpdateDamageReportRequest extends FormRequest
 
     public function validatedForUpdate(DamageReport $damageReport): array
     {
-        $validated = $this->validated();
-
-        if (! array_key_exists('status', $validated)) {
-            return $validated;
-        }
-
-        if ($validated['status'] === DamageStatus::Resolved->value) {
-            if (! array_key_exists('resolved_at', $validated) || $validated['resolved_at'] === null) {
-                $validated['resolved_at'] = $damageReport->resolved_at ?? now();
-            }
-
-            return $validated;
-        }
-
-        if (! array_key_exists('resolved_at', $validated)) {
-            $validated['resolved_at'] = null;
-        }
-
-        return $validated;
+        return app(DamageReportWorkflow::class)->prepareForUpdate($damageReport, $this->validated());
     }
 }

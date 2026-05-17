@@ -49,7 +49,7 @@ class ModelLayerTest extends TestCase
             'current_map_id' => $map->id,
             'position_x' => 12.3456,
             'position_y' => 65.4321,
-            'qr_code_value' => 'QR-001',
+            'qr_code_value' => 'QRCODE1234',
             'rfid_tag' => 'RFID-001',
             'created_by' => $manager->id,
             'updated_by' => $manager->id,

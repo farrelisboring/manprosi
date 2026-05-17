@@ -114,6 +114,15 @@ class Asset extends Model
         });
     }
 
+    public function scopeWithFilters(Builder $query, array $filters): Builder
+    {
+        return $query
+            ->search($filters['search'] ?? null)
+            ->when(filled($filters['category_id'] ?? null), fn (Builder $builder) => $builder->forCategory((int) $filters['category_id']))
+            ->when(filled($filters['current_location_id'] ?? null), fn (Builder $builder) => $builder->atLocation((int) $filters['current_location_id']))
+            ->when(filled($filters['status'] ?? null), fn (Builder $builder) => $builder->withStatus($filters['status']));
+    }
+
     public function scopeForCategory(Builder $query, AssetCategory|int $category): Builder
     {
         $categoryId = $category instanceof AssetCategory ? $category->getKey() : $category;
