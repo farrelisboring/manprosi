@@ -1,6 +1,17 @@
 @extends('layouts.app')
 
 @section('title', 'Daftar Aset | Hospital Asset Manager')
+@section('page-eyebrow', 'Inventaris')
+@section('page-heading', 'Browse Asset')
+
+@section('page-actions')
+    <a class="rounded-full border border-slate-200 px-5 py-3 text-sm font-semibold text-slate-700 transition hover:border-slate-300 hover:text-slate-950" href="{{ route('web.asset-search.index') }}">
+        Pencarian Aset
+    </a>
+    <a class="rounded-full bg-slate-950 px-5 py-3 text-sm font-semibold text-white transition hover:bg-slate-800" href="{{ route('web.assets.create') }}">
+        Tambah Aset
+    </a>
+@endsection
 
 @section('content')
     @php
@@ -12,18 +23,7 @@
         };
     @endphp
 
-    <section class="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
-        <div>
-            <p class="text-sm font-medium text-sky-700">Persediaan</p>
-            <h1 class="text-3xl font-semibold text-gray-950">Aset Rumah Sakit</h1>
-        </div>
-
-        <a class="rounded-md bg-gray-950 px-4 py-2 text-sm font-medium text-white hover:bg-gray-800" href="{{ route('web.assets.create') }}">
-            Tambah Aset
-        </a>
-    </section>
-
-    <section class="mt-8 rounded-lg border border-gray-200 bg-white p-5 shadow-sm">
+    <section class="rounded-[28px] border border-slate-200 bg-white p-5 shadow-sm lg:p-6">
         <form action="{{ route('web.assets.index') }}" class="grid gap-4 lg:grid-cols-[1fr_1fr_1fr_auto]">
             <div>
                 <label class="block text-sm font-medium text-gray-900" for="category_id">Kategori</label>
@@ -68,7 +68,7 @@
         </form>
     </section>
 
-    <section class="mt-6 overflow-hidden rounded-lg border border-gray-200 bg-white shadow-sm">
+    <section class="mt-6 overflow-hidden rounded-[28px] border border-slate-200 bg-white shadow-sm">
         <div class="overflow-x-auto">
             <table class="min-w-full divide-y divide-gray-200 text-sm">
                 <thead class="bg-gray-50 text-left text-gray-500">

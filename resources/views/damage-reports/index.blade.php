@@ -1,41 +1,37 @@
 @extends('layouts.app')
 
 @section('title', 'Damage and Repair Queue | Hospital Asset Manager')
+@section('page-eyebrow', 'Pemeliharaan')
+@section('page-heading', 'Damage Reports')
+
+@section('page-actions')
+    <a class="rounded-full bg-slate-950 px-5 py-3 text-sm font-semibold text-white transition hover:bg-slate-800" href="{{ route('web.damage-reports.create') }}">
+        Laporan Baru
+    </a>
+@endsection
 
 @section('content')
-    <section class="flex flex-col gap-3 lg:flex-row lg:items-end lg:justify-between">
-        <div>
-            <p class="text-sm font-medium text-rose-700">Perbaikan</p>
-            <h1 class="text-3xl font-semibold text-gray-950">Laporan Kerusakan dan Perbaikan</h1>
-            
-        </div>
-
-        <a class="rounded-md bg-gray-950 px-4 py-2 text-sm font-medium text-white hover:bg-gray-800" href="{{ route('web.damage-reports.create') }}">
-            Laporan Keruskan Baru
-        </a>
-    </section>
-
-    <section class="mt-8 grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
-        <a class="rounded-lg border border-rose-200 bg-white p-5 shadow-sm hover:border-rose-300" data-status-count="reported" href="{{ route('web.damage-reports.index', array_filter(array_merge(request()->except('page', 'status'), ['status' => \App\Enums\DamageStatus::Reported->value]))) }}">
+    <section class="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
+        <a class="rounded-[24px] border border-rose-200 bg-white p-5 shadow-sm hover:border-rose-300" data-status-count="reported" href="{{ route('web.damage-reports.index', array_filter(array_merge(request()->except('page', 'status'), ['status' => \App\Enums\DamageStatus::Reported->value]))) }}">
             <p class="text-sm font-medium text-rose-700">Laporan</p>
             <p class="mt-3 text-3xl font-semibold text-rose-900">{{ number_format($summaryCounts[\App\Enums\DamageStatus::Reported->value]) }}</p>
             <p class="mt-2 text-sm text-gray-600">{{ number_format($summaryCounts[\App\Enums\DamageStatus::Reported->value]) }} laporan</p>
         </a>
 
-        <a class="rounded-lg border border-amber-200 bg-white p-5 shadow-sm hover:border-amber-300" data-status-count="in_progress" href="{{ route('web.damage-reports.index', array_filter(array_merge(request()->except('page', 'status'), ['status' => \App\Enums\DamageStatus::InProgress->value]))) }}">
+        <a class="rounded-[24px] border border-amber-200 bg-white p-5 shadow-sm hover:border-amber-300" data-status-count="in_progress" href="{{ route('web.damage-reports.index', array_filter(array_merge(request()->except('page', 'status'), ['status' => \App\Enums\DamageStatus::InProgress->value]))) }}">
             <p class="text-sm font-medium text-amber-700">Sedang Diperbaiki</p>
             <p class="mt-3 text-3xl font-semibold text-amber-900">{{ number_format($summaryCounts[\App\Enums\DamageStatus::InProgress->value]) }}</p>
             <p class="mt-2 text-sm text-gray-600">{{ number_format($summaryCounts[\App\Enums\DamageStatus::InProgress->value]) }} sedang diperbaiki</p>
         </a>
 
-        <a class="rounded-lg border border-emerald-200 bg-white p-5 shadow-sm hover:border-emerald-300" data-status-count="resolved" href="{{ route('web.damage-reports.index', array_filter(array_merge(request()->except('page', 'status'), ['status' => \App\Enums\DamageStatus::Resolved->value]))) }}">
+        <a class="rounded-[24px] border border-emerald-200 bg-white p-5 shadow-sm hover:border-emerald-300" data-status-count="resolved" href="{{ route('web.damage-reports.index', array_filter(array_merge(request()->except('page', 'status'), ['status' => \App\Enums\DamageStatus::Resolved->value]))) }}">
             <p class="text-sm font-medium text-emerald-700">Selesai</p>
             <p class="mt-3 text-3xl font-semibold text-emerald-900">{{ number_format($summaryCounts[\App\Enums\DamageStatus::Resolved->value]) }}</p>
             <p class="mt-2 text-sm text-gray-600">{{ number_format($summaryCounts[\App\Enums\DamageStatus::Resolved->value]) }} selesai</p>
         </a>
     </section>
 
-    <section class="mt-8 rounded-lg border border-gray-200 bg-white p-5 shadow-sm">
+    <section class="mt-6 rounded-[28px] border border-slate-200 bg-white p-5 shadow-sm lg:p-6">
         <form action="{{ route('web.damage-reports.index') }}" class="grid gap-4 lg:grid-cols-[1.2fr_1fr_1fr_1fr_1fr_1fr_auto] lg:items-end">
             <div>
                 <label class="block text-sm font-medium text-gray-900" for="asset_id">Asset</label>
@@ -103,7 +99,7 @@
         </form>
     </section>
 
-    <section class="mt-6 overflow-hidden rounded-lg border border-gray-200 bg-white shadow-sm">
+    <section class="mt-6 overflow-hidden rounded-[28px] border border-slate-200 bg-white shadow-sm">
         <div class="overflow-x-auto">
             <table class="min-w-full divide-y divide-gray-200 text-sm">
                 <thead class="bg-gray-50 text-left text-gray-500">

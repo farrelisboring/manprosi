@@ -60,7 +60,7 @@ class DamageReportWebUiTest extends TestCase
 
         $this->get('/damage-reports')
             ->assertOk()
-            ->assertSee('Laporan Kerusakan dan Perbaikan')
+            ->assertSee('Damage Reports')
             ->assertSee($reported->title)
             ->assertSee($inProgress->title)
             ->assertDontSee($resolved->title)

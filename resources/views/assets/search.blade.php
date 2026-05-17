@@ -1,21 +1,17 @@
 @extends('layouts.app')
 
 @section('title', 'Search Assets | Hospital Asset Manager')
+@section('page-eyebrow', 'Modul Pencarian')
+@section('page-heading', 'Pencarian Aset')
+
+@section('page-actions')
+    <a class="rounded-full border border-slate-200 px-5 py-3 text-sm font-semibold text-slate-700 transition hover:border-slate-300 hover:text-slate-950" href="{{ route('web.assets.index') }}">
+        Browse Asset
+    </a>
+@endsection
 
 @section('content')
-    <section class="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
-        <div>
-            <p class="text-sm font-medium text-violet-700">Pencarian Asset</p>
-            <h1 class="text-3xl font-semibold text-gray-950">Pencarian Asset Rumah Sakit</h1>
-            
-        </div>
-
-        <a class="rounded-md border border-gray-300 px-4 py-2 text-sm font-medium text-gray-700 hover:border-gray-400 hover:text-gray-950" href="{{ route('web.assets.index') }}">
-            Lihat Persediaan
-        </a>
-    </section>
-
-    <section class="mt-8 rounded-lg border border-gray-200 bg-white p-5 shadow-sm">
+    <section class="rounded-[28px] border border-slate-200 bg-white p-5 shadow-sm lg:p-6">
         <form action="{{ route('web.asset-search.index') }}" class="grid gap-4 lg:grid-cols-[2fr_1fr_1fr_1fr_auto]">
             <div>
                 <label class="block text-sm font-medium text-gray-900" for="search">Search</label>
@@ -66,16 +62,20 @@
     </section>
 
     @if (! $hasSearch)
-        <section class="mt-6 rounded-lg border border-dashed border-gray-300 bg-white p-8 text-center shadow-sm">
-            
+        <section class="mt-6 rounded-[28px] border border-dashed border-slate-300 bg-white p-8 text-center shadow-sm">
+            <p class="text-sm font-semibold uppercase tracking-[0.2em] text-slate-400">Mulai Pencarian</p>
+            <h2 class="mt-3 text-2xl font-black tracking-tight text-slate-950">Mulai dengan kata kunci</h2>
+            <p class="mt-3 text-sm leading-7 text-slate-600">
+                Gunakan nama aset, kode aset, barcode, QR, RFID, atau kategori untuk menemukan perangkat yang dibutuhkan.
+            </p>
         </section>
     @else
-        <section class="mt-6 overflow-hidden rounded-lg border border-gray-200 bg-white shadow-sm">
+        <section class="mt-6 overflow-hidden rounded-[28px] border border-slate-200 bg-white shadow-sm">
             <div class="flex flex-col gap-2 border-b border-gray-200 px-5 py-4 sm:flex-row sm:items-center sm:justify-between">
                 <div>
-                    <h2 class="text-lg font-semibold text-gray-950">Search results</h2>
+                    <h2 class="text-lg font-semibold text-gray-950">Hasil Pencarian</h2>
                     <p class="text-sm text-gray-600">
-                        {{ number_format($assets->total()) }} result{{ $assets->total() === 1 ? '' : 's' }} for
+                        {{ number_format($assets->total()) }} hasil untuk
                         <span class="font-medium text-gray-950">"{{ $searchTerm }}"</span>.
                     </p>
                 </div>
@@ -125,13 +125,13 @@
                                         <a class="rounded-md border border-gray-300 px-3 py-2 text-xs font-medium text-gray-700 hover:border-gray-400 hover:text-gray-950" href="{{ route('web.assets.tracking.show', $asset) }}">Tracking</a>
                                     </div>
                                 </td>
-                            </tr>
-                        @empty
-                            <tr>
-                                <td class="px-4 py-10 text-center text-gray-600" colspan="6">No assets matched "{{ $searchTerm }}" with the current filters.</td>
-                            </tr>
-                        @endforelse
-                    </tbody>
+                        </tr>
+                    @empty
+                        <tr>
+                            <td class="px-4 py-10 text-center text-gray-600" colspan="6">Tidak ada aset yang cocok dengan "{{ $searchTerm }}" untuk filter saat ini.</td>
+                        </tr>
+                    @endforelse
+                </tbody>
                 </table>
             </div>
 

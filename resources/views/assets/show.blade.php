@@ -1,6 +1,18 @@
 @extends('layouts.app')
 
 @section('title', $asset->name.' | Hospital Asset Manager')
+@section('page-eyebrow', 'Detail Aset')
+@section('page-heading')
+    <span class="text-3xl lg:text-4xl">{{ $asset->name }}</span>
+@endsection
+
+@section('page-actions')
+    <a class="rounded-full border border-slate-200 px-5 py-3 text-sm font-semibold text-slate-700 transition hover:border-slate-300 hover:text-slate-950" href="{{ route('web.assets.index') }}">Kembali ke Aset</a>
+    <a class="rounded-full border border-slate-200 px-5 py-3 text-sm font-semibold text-slate-700 transition hover:border-slate-300 hover:text-slate-950" href="{{ route('web.assets.tracking.show', $asset) }}">Track Aset</a>
+    <a class="rounded-full border border-slate-200 px-5 py-3 text-sm font-semibold text-slate-700 transition hover:border-slate-300 hover:text-slate-950" href="{{ route('web.assets.movements.create', $asset) }}">Form Pemindahan Aset</a>
+    <a class="rounded-full border border-rose-300 px-5 py-3 text-sm font-semibold text-rose-700 transition hover:border-rose-400 hover:text-rose-900" href="{{ route('web.damage-reports.create', ['asset_id' => $asset->id]) }}">Lapor Kerusakan</a>
+    <a class="rounded-full bg-slate-950 px-5 py-3 text-sm font-semibold text-white transition hover:bg-slate-800" href="{{ route('web.assets.edit', $asset) }}">Edit asset</a>
+@endsection
 
 @section('content')
     @php
@@ -8,23 +20,11 @@
         $qrDownloadName = 'asset-'.str($asset->asset_code)->slug()->value().'-qr.png';
     @endphp
 
-    <section class="flex flex-col gap-3 lg:flex-row lg:items-start lg:justify-between">
-        <div>
-            <p class="text-sm font-medium text-sky-700">Detail Aset</p>
-            <h1 class="text-3xl font-semibold text-gray-950">{{ $asset->name }}</h1>
-            <p class="mt-2 text-sm text-gray-600">{{ $asset->asset_code }}{{ $asset->category ? ' · '.$asset->category->name : '' }}</p>
-        </div>
-
-        <div class="flex flex-wrap gap-3">
-            <a class="rounded-md border border-gray-300 px-4 py-2 text-sm font-medium text-gray-700 hover:border-gray-400 hover:text-gray-950" href="{{ route('web.assets.index') }}">Kembali ke Aset</a>
-            <a class="rounded-md border border-gray-300 px-4 py-2 text-sm font-medium text-gray-700 hover:border-gray-400 hover:text-gray-950" href="{{ route('web.assets.tracking.show', $asset) }}">Track Aset</a>
-            <a class="rounded-md border border-gray-300 px-4 py-2 text-sm font-medium text-gray-700 hover:border-gray-400 hover:text-gray-950" href="{{ route('web.assets.movements.create', $asset) }}">Form Pemindahan Aset</a>
-            <a class="rounded-md border border-rose-300 px-4 py-2 text-sm font-medium text-rose-700 hover:border-rose-400 hover:text-rose-900" href="{{ route('web.damage-reports.create', ['asset_id' => $asset->id]) }}">Lapor Kerusakan</a>
-            <a class="rounded-md bg-gray-950 px-4 py-2 text-sm font-medium text-white hover:bg-gray-800" href="{{ route('web.assets.edit', $asset) }}">Edit asset</a>
-        </div>
+    <section class="rounded-[28px] border border-slate-200 bg-white px-6 py-5 shadow-sm">
+        <p class="text-sm text-slate-600">{{ $asset->asset_code }}{{ $asset->category ? ' · '.$asset->category->name : '' }}</p>
     </section>
 
-    <section class="mt-8 grid gap-8 xl:grid-cols-[1.6fr_1fr]">
+    <section class="mt-6 grid gap-8 xl:grid-cols-[1.6fr_1fr]">
         <div class="space-y-6">
             <section class="rounded-lg border border-gray-200 bg-white p-5 shadow-sm">
                 <h2 class="text-lg font-semibold text-gray-950">Rekaman Aset</h2>
@@ -49,7 +49,6 @@
                         <dt class="text-xs font-medium uppercase tracking-wide text-gray-500">Nomer Seri</dt>
                         <dd class="mt-1 text-sm text-gray-900">{{ $asset->serial_number ?: 'Not set' }}</dd>
                     </div>
-
                 </dl>
 
                 <div class="mt-5 border-t border-gray-200 pt-5">
@@ -94,7 +93,7 @@
                 >
                     <div class="flex h-48 w-48 items-center justify-center rounded-lg border border-gray-200 bg-white shadow-sm" data-qr-canvas-host>
                         <div class="px-4 text-center text-sm text-gray-500" data-qr-empty-state>
-                            {{ $asset->qr_code_value ? 'Rendering QR preview…' : 'Generate a QR label to preview the short-link code.' }}
+                            {{ $asset->qr_code_value ? 'Rendering QR preview...' : 'Generate a QR label to preview the short-link code.' }}
                         </div>
                     </div>
 

@@ -40,8 +40,9 @@ class AssetWebUiTest extends TestCase
 
         $this->get('/')
             ->assertOk()
-            ->assertSee('Hospital assets at a glance')
-            ->assertSee('Total assets')
+            ->assertSee('Dashboard')
+            ->assertSee('Pantau aset, cari perangkat, dan tindak lanjuti laporan dari satu panel.')
+            ->assertSee('Total Aset')
             ->assertSee('Ultrasound')
             ->assertSee('Infusion Pump');
     }
@@ -126,10 +127,9 @@ class AssetWebUiTest extends TestCase
 
         $this->get('/assets/create')
             ->assertOk()
-            ->assertSee('Create an asset record')
+            ->assertSee('Menambahkan aset')
             ->assertSee($category->name)
             ->assertSee('value="available" selected', false)
-            ->assertSee('Choose a location first')
             ->assertDontSee('Barcode value')
             ->assertDontSee('RFID tag')
             ->assertDontSee('Position X')
@@ -138,10 +138,8 @@ class AssetWebUiTest extends TestCase
         $this->get('/assets/'.$asset->id.'/edit')
             ->assertOk()
             ->assertSee('Edit aset')
-            ->assertSee('Ward Alpha Map')
-            ->assertSee('Ward Beta Map')
-            ->assertSee('data-map-options', false)
-            ->assertSee('data-selected-map="1"', false);
+            ->assertSee('Monitor')
+            ->assertDontSee('Current map');
     }
 
     public function test_asset_store_and_update_redirect_with_flash_messages(): void
@@ -243,7 +241,6 @@ class AssetWebUiTest extends TestCase
         $this->get('/assets/'.$asset->id)
             ->assertOk()
             ->assertSee('Patient Monitor')
-            ->assertSee('Ward F Map')
             ->assertSee('Assigned')
             ->assertSee('QRWEB12345')
             ->assertSee('data-qr-preview', false)

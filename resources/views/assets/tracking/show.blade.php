@@ -1,22 +1,22 @@
 @extends('layouts.app')
 
 @section('title', 'Tracking - '.$asset->name.' | Hospital Asset Manager')
+@section('page-eyebrow', 'Tracking Aset')
+@section('page-heading')
+    <span class="text-3xl lg:text-4xl">{{ $asset->name }}</span>
+@endsection
+
+@section('page-actions')
+    <a class="rounded-full border border-slate-200 px-5 py-3 text-sm font-semibold text-slate-700 transition hover:border-slate-300 hover:text-slate-950" href="{{ route('web.assets.show', $asset) }}">Asset detail</a>
+    <a class="rounded-full bg-slate-950 px-5 py-3 text-sm font-semibold text-white transition hover:bg-slate-800" href="{{ route('web.assets.movements.create', $asset) }}">Record movement</a>
+@endsection
 
 @section('content')
-    <section class="flex flex-col gap-3 lg:flex-row lg:items-start lg:justify-between">
-        <div>
-            <p class="text-sm font-medium text-sky-700">Tracking Aset</p>
-            <h1 class="text-3xl font-semibold text-gray-950">{{ $asset->name }}</h1>
-            <p class="mt-2 text-sm text-gray-600">{{ $asset->asset_code }}{{ $asset->category ? ' - '.$asset->category->name : '' }}</p>
-        </div>
-
-        <div class="flex flex-wrap gap-3">
-            <a class="rounded-md border border-gray-300 px-4 py-2 text-sm font-medium text-gray-700 hover:border-gray-400 hover:text-gray-950" href="{{ route('web.assets.show', $asset) }}">Asset detail</a>
-            <a class="rounded-md bg-gray-950 px-4 py-2 text-sm font-medium text-white hover:bg-gray-800" href="{{ route('web.assets.movements.create', $asset) }}">Record movement</a>
-        </div>
+    <section class="rounded-[28px] border border-slate-200 bg-white px-6 py-5 shadow-sm">
+        <p class="text-sm text-slate-600">{{ $asset->asset_code }}{{ $asset->category ? ' - '.$asset->category->name : '' }}</p>
     </section>
 
-    <section class="mt-8 rounded-lg border border-gray-200 bg-white p-5 shadow-sm">
+    <section class="mt-6 rounded-lg border border-gray-200 bg-white p-5 shadow-sm">
         <div class="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
             <form action="{{ route('web.assets.tracking.show', $asset) }}" class="grid gap-4 lg:flex-1 lg:grid-cols-[1fr_1fr_1fr_1fr_auto] lg:items-end">
                 <div class="flex h-full flex-col justify-end">

@@ -1,21 +1,21 @@
 @extends('layouts.app')
 
 @section('title', 'Record Movement - '.$asset->name.' | Hospital Asset Manager')
+@section('page-eyebrow', 'Form Pemindahan')
+@section('page-heading')
+    <span class="text-3xl lg:text-4xl">{{ $asset->name }}</span>
+@endsection
+
+@section('page-actions')
+    <a class="rounded-full border border-slate-200 px-5 py-3 text-sm font-semibold text-slate-700 transition hover:border-slate-300 hover:text-slate-950" href="{{ route('web.assets.tracking.show', $asset) }}">Back to tracking</a>
+@endsection
 
 @section('content')
-    <section class="flex flex-col gap-3 lg:flex-row lg:items-start lg:justify-between">
-        <div>
-            <p class="text-sm font-medium text-amber-700">Form Pemindahan</p>
-            <h1 class="text-3xl font-semibold text-gray-950">{{ $asset->name }}</h1>
-            <p class="mt-2 text-sm text-gray-600">{{ $asset->asset_code }}{{ $asset->category ? ' - '.$asset->category->name : '' }}</p>
-        </div>
-
-        <div class="flex flex-wrap gap-3">
-            <a class="rounded-md border border-gray-300 px-4 py-2 text-sm font-medium text-gray-700 hover:border-gray-400 hover:text-gray-950" href="{{ route('web.assets.tracking.show', $asset) }}">Back to tracking</a>
-        </div>
+    <section class="rounded-[28px] border border-slate-200 bg-white px-6 py-5 shadow-sm">
+        <p class="text-sm text-slate-600">{{ $asset->asset_code }}{{ $asset->category ? ' - '.$asset->category->name : '' }}</p>
     </section>
 
-    <section class="mt-8 rounded-lg border border-gray-200 bg-white p-5 shadow-sm">
+    <section class="mt-6 rounded-lg border border-gray-200 bg-white p-5 shadow-sm">
         <h2 class="text-lg font-semibold text-gray-950">Penempatan Saat Ini</h2>
         <div class="mt-5 grid gap-4 sm:grid-cols-2">
             <div>
@@ -27,7 +27,7 @@
 
     <form
         action="{{ route('web.assets.movements.store', $asset) }}"
-        class="mt-8 grid gap-6 lg:grid-cols-2"
+        class="mt-6 grid gap-6 lg:grid-cols-2"
         method="POST"
     >
         @csrf
