@@ -10,16 +10,16 @@
 
     <section class="flex flex-col gap-3 lg:flex-row lg:items-start lg:justify-between">
         <div>
-            <p class="text-sm font-medium text-sky-700">Asset detail</p>
+            <p class="text-sm font-medium text-sky-700">Detail Aset</p>
             <h1 class="text-3xl font-semibold text-gray-950">{{ $asset->name }}</h1>
             <p class="mt-2 text-sm text-gray-600">{{ $asset->asset_code }}{{ $asset->category ? ' · '.$asset->category->name : '' }}</p>
         </div>
 
         <div class="flex flex-wrap gap-3">
-            <a class="rounded-md border border-gray-300 px-4 py-2 text-sm font-medium text-gray-700 hover:border-gray-400 hover:text-gray-950" href="{{ route('web.assets.index') }}">Back to assets</a>
-            <a class="rounded-md border border-gray-300 px-4 py-2 text-sm font-medium text-gray-700 hover:border-gray-400 hover:text-gray-950" href="{{ route('web.assets.tracking.show', $asset) }}">Track asset</a>
-            <a class="rounded-md border border-gray-300 px-4 py-2 text-sm font-medium text-gray-700 hover:border-gray-400 hover:text-gray-950" href="{{ route('web.assets.movements.create', $asset) }}">Record movement</a>
-            <a class="rounded-md border border-rose-300 px-4 py-2 text-sm font-medium text-rose-700 hover:border-rose-400 hover:text-rose-900" href="{{ route('web.damage-reports.create', ['asset_id' => $asset->id]) }}">Report damage</a>
+            <a class="rounded-md border border-gray-300 px-4 py-2 text-sm font-medium text-gray-700 hover:border-gray-400 hover:text-gray-950" href="{{ route('web.assets.index') }}">Kembali ke Aset</a>
+            <a class="rounded-md border border-gray-300 px-4 py-2 text-sm font-medium text-gray-700 hover:border-gray-400 hover:text-gray-950" href="{{ route('web.assets.tracking.show', $asset) }}">Track Aset</a>
+            <a class="rounded-md border border-gray-300 px-4 py-2 text-sm font-medium text-gray-700 hover:border-gray-400 hover:text-gray-950" href="{{ route('web.assets.movements.create', $asset) }}">Form Pemindahan Aset</a>
+            <a class="rounded-md border border-rose-300 px-4 py-2 text-sm font-medium text-rose-700 hover:border-rose-400 hover:text-rose-900" href="{{ route('web.damage-reports.create', ['asset_id' => $asset->id]) }}">Lapor Kerusakan</a>
             <a class="rounded-md bg-gray-950 px-4 py-2 text-sm font-medium text-white hover:bg-gray-800" href="{{ route('web.assets.edit', $asset) }}">Edit asset</a>
         </div>
     </section>
@@ -27,7 +27,7 @@
     <section class="mt-8 grid gap-8 xl:grid-cols-[1.6fr_1fr]">
         <div class="space-y-6">
             <section class="rounded-lg border border-gray-200 bg-white p-5 shadow-sm">
-                <h2 class="text-lg font-semibold text-gray-950">Asset snapshot</h2>
+                <h2 class="text-lg font-semibold text-gray-950">Rekaman Aset</h2>
                 <dl class="mt-5 grid gap-5 sm:grid-cols-2">
                     <div>
                         <dt class="text-xs font-medium uppercase tracking-wide text-gray-500">Status</dt>
@@ -46,13 +46,10 @@
                         <dd class="mt-1 text-sm text-gray-900">{{ $asset->model ?: 'Not set' }}</dd>
                     </div>
                     <div>
-                        <dt class="text-xs font-medium uppercase tracking-wide text-gray-500">Serial number</dt>
+                        <dt class="text-xs font-medium uppercase tracking-wide text-gray-500">Nomer Seri</dt>
                         <dd class="mt-1 text-sm text-gray-900">{{ $asset->serial_number ?: 'Not set' }}</dd>
                     </div>
-                    <div>
-                        <dt class="text-xs font-medium uppercase tracking-wide text-gray-500">RFID tag</dt>
-                        <dd class="mt-1 text-sm text-gray-900">{{ $asset->rfid_tag ?: 'Not set' }}</dd>
-                    </div>
+
                 </dl>
 
                 <div class="mt-5 border-t border-gray-200 pt-5">
@@ -67,15 +64,11 @@
             </section>
 
             <section class="rounded-lg border border-gray-200 bg-white p-5 shadow-sm">
-                <h2 class="text-lg font-semibold text-gray-950">Placement and identifiers</h2>
+                <h2 class="text-lg font-semibold text-gray-950">Lokasi</h2>
                 <dl class="mt-5 grid gap-5 sm:grid-cols-2">
                     <div>
-                        <dt class="text-xs font-medium uppercase tracking-wide text-gray-500">Current location</dt>
+                        <dt class="text-xs font-medium uppercase tracking-wide text-gray-500">Ruangan Saat Ini</dt>
                         <dd class="mt-1 text-sm text-gray-900">{{ $asset->currentLocation?->name ?? 'Unassigned' }}</dd>
-                    </div>
-                    <div>
-                        <dt class="text-xs font-medium uppercase tracking-wide text-gray-500">Current map</dt>
-                        <dd class="mt-1 text-sm text-gray-900">{{ $asset->currentMap?->name ?? 'No map placement' }}</dd>
                     </div>
                 </dl>
             </section>
@@ -154,14 +147,14 @@
             </section>
 
             <section class="rounded-lg border border-gray-200 bg-white p-5 shadow-sm">
-                <h2 class="text-lg font-semibold text-gray-950">Record metadata</h2>
+                <h2 class="text-lg font-semibold text-gray-950">Rekaman Tanggal</h2>
                 <dl class="mt-5 space-y-4 text-sm">
                     <div>
-                        <dt class="text-xs font-medium uppercase tracking-wide text-gray-500">Created at</dt>
+                        <dt class="text-xs font-medium uppercase tracking-wide text-gray-500">Dibuat pada</dt>
                         <dd class="mt-1 text-gray-900">{{ $asset->created_at?->format('Y-m-d H:i') ?? 'Unknown' }}</dd>
                     </div>
                     <div>
-                        <dt class="text-xs font-medium uppercase tracking-wide text-gray-500">Updated at</dt>
+                        <dt class="text-xs font-medium uppercase tracking-wide text-gray-500">Diperbarui pada</dt>
                         <dd class="mt-1 text-gray-900">{{ $asset->updated_at?->format('Y-m-d H:i') ?? 'Unknown' }}</dd>
                     </div>
                 </dl>

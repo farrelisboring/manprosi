@@ -47,10 +47,12 @@ class AssetMovementWebUiTest extends TestCase
 
         $this->get('/assets/'.$asset->id.'/tracking')
             ->assertOk()
-            ->assertSee('Asset tracking')
+            ->assertSee('Tracking Aset')
             ->assertSee($asset->currentLocation->name)
-            ->assertSee($asset->currentMap->name)
-            ->assertSee(number_format($asset->position_x, 4))
+            ->assertSee($asset->currentLocation->locationMap->name)
+            ->assertDontSee('Position X')
+            ->assertDontSee('Position Y')
+            ->assertDontSee('Movement source')
             ->assertSee($latestMovement->reason)
             ->assertSee('Record movement');
     }
@@ -83,11 +85,10 @@ class AssetMovementWebUiTest extends TestCase
 
         $response
             ->assertOk()
-            ->assertSee('Rfid')
             ->assertSee('Reader-detected transfer')
             ->assertDontSee('Manual portering move')
-            ->assertSee('value="rfid" selected', false)
-            ->assertSee('value="'.$from->id.'" selected', false);
+            ->assertSee('value="'.$from->id.'" selected', false)
+            ->assertSee('value="2026-05-15"', false);
     }
 
     public function test_create_movement_page_renders_full_form_and_current_context(): void
@@ -99,12 +100,11 @@ class AssetMovementWebUiTest extends TestCase
 
         $this->get('/assets/'.$asset->id.'/movements/create')
             ->assertOk()
-            ->assertSee('Record movement')
+            ->assertSee('Form Pemindahan')
             ->assertSee($asset->currentLocation->name)
             ->assertSee($destination->name)
-            ->assertSee($destinationMap->name)
             ->assertSee($user->email)
-            ->assertSee('Movement source')
+            ->assertDontSee('Movement source')
             ->assertSeeInOrder(['name="moved_at"', 'required', 'type="datetime-local"'], false)
             ->assertDontSee('Position X')
             ->assertDontSee('Position Y')
@@ -120,7 +120,6 @@ class AssetMovementWebUiTest extends TestCase
 
         $this->post('/assets/'.$asset->id.'/movements', [
             'to_location_id' => $destination->id,
-            'movement_source' => MovementSource::QrCode->value,
             'moved_by_user_id' => $user->id,
             'reason' => 'Sent for urgent care',
             'notes' => 'Moved after triage escalation.',
@@ -142,7 +141,7 @@ class AssetMovementWebUiTest extends TestCase
             'asset_id' => $asset->id,
             'to_location_id' => $destination->id,
             'moved_by_user_id' => $user->id,
-            'movement_source' => MovementSource::QrCode->value,
+            'movement_source' => MovementSource::Manual->value,
         ]);
     }
 
@@ -208,7 +207,6 @@ class AssetMovementWebUiTest extends TestCase
         $this->from('/assets/'.$asset->id.'/movements/create')
             ->post('/assets/'.$asset->id.'/movements', [
                 'to_location_id' => $destination->id,
-                'movement_source' => MovementSource::Manual->value,
             ])
             ->assertRedirect('/assets/'.$asset->id.'/movements/create')
             ->assertSessionHasErrors('moved_at');
@@ -222,7 +220,6 @@ class AssetMovementWebUiTest extends TestCase
         $this->from('/assets/'.$asset->id.'/movements/create')
             ->post('/assets/'.$asset->id.'/movements', [
                 'to_location_id' => $destination->id,
-                'movement_source' => MovementSource::Manual->value,
                 'reason' => 'Testing timestamp bounds',
                 'moved_at' => '2222-02-22 14:02:00',
             ])
@@ -263,7 +260,7 @@ class AssetMovementWebUiTest extends TestCase
             ->assertOk()
             ->assertSee('Tracked by gate reader')
             ->assertDontSee('Manual adjustment')
-            ->assertSee('Movement history');
+            ->assertSee('Riwayat Perpindahan');
     }
 
     private function createAssetWithPlacement(): Asset
@@ -273,7 +270,13 @@ class AssetMovementWebUiTest extends TestCase
             'name' => 'Movement Web Category',
         ]);
 
-        $location = $this->createLocation('MOVE-WEB-BASE', 'Ward A');
+        $gedung = LocationMap::create([
+            'name' => 'Gedung A',
+            'image_path' => 'maps/gedung-a.png',
+            'image_width' => 1200,
+            'image_height' => 800,
+        ]);
+        $location = $this->createLocation('MOVE-WEB-BASE', 'Ward A', $gedung->id);
         $map = $this->createMap($location, 'Ward A Map');
 
         return Asset::create([
@@ -288,13 +291,14 @@ class AssetMovementWebUiTest extends TestCase
         ]);
     }
 
-    private function createLocation(string $code, string $name): Location
+    private function createLocation(string $code, string $name, ?int $locationMapId = null): Location
     {
         return Location::create([
             'code' => $code,
             'name' => $name,
             'type' => 'room',
             'floor_number' => 1,
+            'location_map_id' => $locationMapId,
             'is_active' => true,
         ]);
     }

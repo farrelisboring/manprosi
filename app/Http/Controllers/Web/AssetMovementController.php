@@ -14,8 +14,10 @@ use App\Services\AssetMovementRecorder;
 use Illuminate\Contracts\View\View;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Carbon;
 use Illuminate\Support\Collection;
 use Illuminate\Validation\Rule;
+use Illuminate\Validation\ValidationException;
 
 class AssetMovementController extends Controller
 {
@@ -32,19 +34,21 @@ class AssetMovementController extends Controller
     public function create(Asset $asset): View
     {
         return view('assets.movements.create', [
-            'asset' => $asset->load(['category', 'currentLocation', 'currentMap']),
+            'asset' => $asset->load(['category', 'currentLocation.locationMap', 'currentMap']),
             'locations' => $this->locations(),
             'maps' => $this->mapsForLocation($this->selectedDestinationLocationId()),
             'allMaps' => $this->allMaps(),
             'selectedDestinationLocationId' => $this->selectedDestinationLocationId(),
-            'movementSources' => MovementSource::cases(),
             'users' => $this->users(),
         ]);
     }
 
     public function store(StoreAssetMovementRequest $request, Asset $asset, AssetMovementRecorder $recorder): RedirectResponse
     {
-        $recorder->record($asset, $request->validated());
+        $recorder->record($asset, array_merge(
+            $request->validated(),
+            ['movement_source' => MovementSource::Manual->value],
+        ));
 
         return redirect()
             ->route('web.assets.tracking.show', $asset)
@@ -60,13 +64,14 @@ class AssetMovementController extends Controller
             'movementSources' => MovementSource::cases(),
             'locations' => $this->locations(),
             'refreshUrl' => route('web.assets.tracking.refresh', $asset),
+            'trackingFilters' => $this->trackingFilterValues($request),
         ]);
     }
 
     private function trackingPanelData(Request $request, Asset $asset): array
     {
-        $validated = $request->validate($this->movementFilterRules());
-        $asset = $asset->fresh()->load(['category', 'currentLocation', 'currentMap']);
+        $validated = $this->validatedTrackingFilters($request);
+        $asset = $asset->fresh()->load(['category', 'currentLocation.locationMap', 'currentMap']);
 
         return [
             'asset' => $asset,
@@ -91,8 +96,46 @@ class AssetMovementController extends Controller
             'from_location_id' => ['nullable', 'integer', Rule::exists('locations', 'id')],
             'to_location_id' => ['nullable', 'integer', Rule::exists('locations', 'id')],
             'date_from' => ['nullable', 'date'],
-            'date_to' => ['nullable', 'date', 'after_or_equal:date_from'],
+            'date_to' => ['nullable', 'date'],
             'per_page' => ['nullable', 'integer', 'min:1', 'max:100'],
+        ];
+    }
+
+    private function validatedTrackingFilters(Request $request): array
+    {
+        $validated = $request->validate($this->movementFilterRules());
+
+        if (($validated['date_from'] ?? null) !== null) {
+            $validated['date_from'] = Carbon::parse($validated['date_from'])
+                ->startOfDay()
+                ->format('Y-m-d H:i:s');
+        }
+
+        if (($validated['date_to'] ?? null) !== null) {
+            $validated['date_to'] = Carbon::parse($validated['date_to'])
+                ->endOfDay()
+                ->format('Y-m-d H:i:s');
+        }
+
+        if (
+            isset($validated['date_from'], $validated['date_to'])
+            && $validated['date_to'] < $validated['date_from']
+        ) {
+            throw ValidationException::withMessages([
+                'date_to' => 'The date to field must be a date after or equal to date from.',
+            ]);
+        }
+
+        return $validated;
+    }
+
+    private function trackingFilterValues(Request $request): array
+    {
+        return [
+            'from_location_id' => $request->query('from_location_id'),
+            'to_location_id' => $request->query('to_location_id'),
+            'date_from' => $request->query('date_from'),
+            'date_to' => $request->query('date_to'),
         ];
     }
 

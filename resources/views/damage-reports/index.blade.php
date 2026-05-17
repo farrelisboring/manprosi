@@ -88,12 +88,12 @@
 
             <div>
                 <label class="block text-sm font-medium text-gray-900" for="date_from">Dari Tanggal</label>
-                <input class="mt-2 block w-full rounded-md border border-gray-300 bg-white px-3 py-2 text-sm text-gray-900 focus:border-rose-500 focus:outline-none focus:ring-2 focus:ring-rose-200" id="date_from" name="date_from" type="text" inputmode="numeric" maxlength="10" pattern="\d{2}/\d{2}/\d{4}" placeholder="dd/mm/yyyy" value="{{ request('date_from', '') }}">
+                <input class="mt-2 block w-full rounded-md border border-gray-300 bg-white px-3 py-2 text-sm text-gray-900 focus:border-rose-500 focus:outline-none focus:ring-2 focus:ring-rose-200" id="date_from" name="date_from" type="date" value="{{ request('date_from', '') }}">
             </div>
 
             <div>
                 <label class="block text-sm font-medium text-gray-900" for="date_to">Ke Tanggal</label>
-                <input class="mt-2 block w-full rounded-md border border-gray-300 bg-white px-3 py-2 text-sm text-gray-900 focus:border-rose-500 focus:outline-none focus:ring-2 focus:ring-rose-200" id="date_to" name="date_to" type="text" inputmode="numeric" maxlength="10" pattern="\d{2}/\d{2}/\d{4}" placeholder="dd/mm/yyyy" value="{{ request('date_to', '') }}">
+                <input class="mt-2 block w-full rounded-md border border-gray-300 bg-white px-3 py-2 text-sm text-gray-900 focus:border-rose-500 focus:outline-none focus:ring-2 focus:ring-rose-200" id="date_to" name="date_to" type="date" value="{{ request('date_to', '') }}">
             </div>
 
             <div class="flex items-end gap-3">

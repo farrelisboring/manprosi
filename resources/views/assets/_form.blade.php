@@ -1,23 +1,9 @@
 @php
     $asset = $asset ?? null;
-    $selectedMapId = old('current_map_id', $asset?->current_map_id);
     $selectedStatusValue = old('status', $asset?->status?->value ?? \App\Enums\AssetStatus::Available->value);
-    $mapOptionsByLocation = $allMaps
-        ->groupBy('location_id')
-        ->map(fn ($group) => $group->map(fn ($map) => [
-            'id' => $map->id,
-            'name' => $map->name,
-            'image_width' => $map->image_width,
-            'image_height' => $map->image_height,
-        ])->values())
-        ->toArray();
 @endphp
 
-<div
-    class="grid gap-6 lg:grid-cols-2"
-    data-map-dependent-form
-    data-map-options='@json($mapOptionsByLocation)'
->
+<div class="grid gap-6 lg:grid-cols-2">
     <div class="space-y-6">
         <section class="rounded-lg border border-gray-200 bg-white p-5 shadow-sm">
             <div class="grid gap-5 sm:grid-cols-2">
@@ -107,29 +93,6 @@
                     </select>
                     @error('current_location_id') <p class="mt-1 text-sm text-red-600">{{ $message }}</p> @enderror
                 </div>
-
-                @unless ($asset)
-                    <div class="sm:col-span-2">
-                        <label class="block text-sm font-medium text-gray-900" for="current_map_id">Current map</label>
-                        <select
-                            class="mt-2 block w-full rounded-md border border-gray-300 bg-white px-3 py-2 text-sm text-gray-900 focus:border-sky-500 focus:outline-none focus:ring-2 focus:ring-sky-200 disabled:bg-gray-100 disabled:text-gray-500"
-                            id="current_map_id"
-                            name="current_map_id"
-                            data-map-select
-                            data-selected-map="{{ $selectedMapId }}"
-                            @disabled($selectedLocationId === null || $maps->isEmpty())
-                        >
-                            <option value="">{{ $selectedLocationId === null ? 'Choose a location first' : 'No map placement' }}</option>
-                            @foreach ($maps as $map)
-                                <option value="{{ $map->id }}" @selected((string) $selectedMapId === (string) $map->id)>
-                                    {{ $map->name }}
-                                </option>
-                            @endforeach
-                        </select>
-                        @error('current_map_id') <p class="mt-1 text-sm text-red-600">{{ $message }}</p> @enderror
-                    </div>
-                @endunless
-
             </div>
         </section>
 
