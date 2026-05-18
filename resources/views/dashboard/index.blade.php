@@ -1,7 +1,7 @@
 @extends('layouts.app')
 
 @section('title', 'Dashboard | Hospital Asset Manager')
-@section('page-eyebrow', 'RS WIDJAYA')
+@section('page-eyebrow', 'RS Mitra Husada')
 @section('page-heading', 'Dashboard')
 
 @section('page-actions')

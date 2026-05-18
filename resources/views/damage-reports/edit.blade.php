@@ -1,21 +1,21 @@
 @extends('layouts.app')
 
 @section('title', 'Edit Damage Report | Hospital Asset Manager')
+@section('page-eyebrow', 'Perbaikan')
+@section('page-heading', 'Edit damage report')
+
+@section('page-actions')
+    <a class="rounded-full border border-slate-200 px-5 py-3 text-sm font-semibold text-slate-700 transition hover:border-slate-300 hover:text-slate-950" href="{{ route('web.damage-reports.show', $damageReport) }}">
+        Back to report
+    </a>
+@endsection
 
 @section('content')
-    <section class="flex flex-col gap-3 lg:flex-row lg:items-start lg:justify-between">
-        <div>
-            <p class="text-sm font-medium text-rose-700">Perbaikan</p>
-            <h1 class="text-3xl font-semibold text-gray-950">Edit damage report</h1>
-            <p class="mt-2 text-sm text-gray-600">Update the report details while keeping repair history on the report timeline.</p>
-        </div>
-
-        <a class="rounded-md border border-gray-300 px-4 py-2 text-sm font-medium text-gray-700 hover:border-gray-400 hover:text-gray-950" href="{{ route('web.damage-reports.show', $damageReport) }}">
-            Back to report
-        </a>
+    <section class="rounded-[28px] border border-slate-200 bg-white px-6 py-5 shadow-sm">
+        <p class="text-sm text-slate-600">Update the report details while keeping repair history on the report timeline.</p>
     </section>
 
-    <form action="{{ route('web.damage-reports.update', $damageReport) }}" class="mt-8 space-y-6" method="POST">
+    <form action="{{ route('web.damage-reports.update', $damageReport) }}" class="mt-6 space-y-6" method="POST">
         @csrf
         @method('PATCH')
 
