@@ -16,7 +16,16 @@
 
 @section('content')
     @php
-        $qrShortUrl = $asset->qr_code_value ? route('web.qr-labels.redirect', $asset->qr_code_value) : null;
+        $shortLinkAppend = trim((string) config('app.short_link_append', ''));
+        $normalizedShortLinkAppend = $shortLinkAppend !== '' ? rtrim($shortLinkAppend, '/') : null;
+        $qrShortUrl = null;
+
+        if ($asset->qr_code_value) {
+            $qrShortUrl = $normalizedShortLinkAppend
+                ? $normalizedShortLinkAppend.'/'.$asset->qr_code_value
+                : route('web.qr-labels.redirect', $asset->qr_code_value);
+        }
+
         $qrDownloadName = 'asset-'.str($asset->asset_code)->slug()->value().'-qr.png';
     @endphp
 

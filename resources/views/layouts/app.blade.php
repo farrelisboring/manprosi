@@ -63,7 +63,7 @@ SVG,
                         </span>
 
                         <span class="min-w-0">
-                            <span class="block text-xl font-extrabold tracking-tight">RS WIDJAYA</span>
+                            <span class="block text-xl font-extrabold tracking-tight">RS Mitra Husada</span>
                             <span class="mt-1 block text-sm font-medium text-white/75">Sistem pelacakan aset rumah sakit</span>
                         </span>
                     </a>

@@ -1,30 +1,30 @@
 @extends('layouts.app')
 
 @section('title', $damageReport->title.' | Hospital Asset Manager')
+@section('page-eyebrow', 'Maintenance workflow')
+@section('page-heading')
+    <span class="text-3xl lg:text-4xl">{{ $damageReport->title }}</span>
+@endsection
+
+@section('page-actions')
+    <a class="rounded-full border border-slate-200 px-5 py-3 text-sm font-semibold text-slate-700 transition hover:border-slate-300 hover:text-slate-950" href="{{ route('web.damage-reports.index') }}">Back to queue</a>
+    <a class="rounded-full border border-slate-200 px-5 py-3 text-sm font-semibold text-slate-700 transition hover:border-slate-300 hover:text-slate-950" href="{{ route('web.damage-reports.edit', $damageReport) }}">Edit report</a>
+    <form action="{{ route('web.damage-reports.destroy', $damageReport) }}" method="POST" onsubmit="return confirm('Delete this damage report and its repair history?');">
+        @csrf
+        @method('DELETE')
+        <button class="rounded-full border border-red-300 px-5 py-3 text-sm font-semibold text-red-700 transition hover:border-red-400 hover:text-red-900" type="submit">Delete report</button>
+    </form>
+@endsection
 
 @section('content')
-    <section class="flex flex-col gap-3 lg:flex-row lg:items-start lg:justify-between">
-        <div>
-            <p class="text-sm font-medium text-rose-700">Maintenance workflow</p>
-            <h1 class="text-3xl font-semibold text-gray-950">{{ $damageReport->title }}</h1>
-            <p class="mt-2 text-sm text-gray-600">
-                {{ $damageReport->asset?->asset_code ?? 'No asset code' }} -
-                {{ $damageReport->asset?->name ?? 'Unknown asset' }}
-            </p>
-        </div>
-
-        <div class="flex flex-wrap gap-3">
-            <a class="rounded-md border border-gray-300 px-4 py-2 text-sm font-medium text-gray-700 hover:border-gray-400 hover:text-gray-950" href="{{ route('web.damage-reports.index') }}">Back to queue</a>
-            <a class="rounded-md border border-gray-300 px-4 py-2 text-sm font-medium text-gray-700 hover:border-gray-400 hover:text-gray-950" href="{{ route('web.damage-reports.edit', $damageReport) }}">Edit report</a>
-            <form action="{{ route('web.damage-reports.destroy', $damageReport) }}" method="POST" onsubmit="return confirm('Delete this damage report and its repair history?');">
-                @csrf
-                @method('DELETE')
-                <button class="rounded-md border border-red-300 px-4 py-2 text-sm font-medium text-red-700 hover:border-red-400 hover:text-red-900" type="submit">Delete report</button>
-            </form>
-        </div>
+    <section class="rounded-[28px] border border-slate-200 bg-white px-6 py-5 shadow-sm">
+        <p class="text-sm text-slate-600">
+            {{ $damageReport->asset?->asset_code ?? 'No asset code' }} -
+            {{ $damageReport->asset?->name ?? 'Unknown asset' }}
+        </p>
     </section>
 
-    <section class="mt-8 grid gap-8 xl:grid-cols-[1.5fr_1fr]">
+    <section class="mt-6 grid gap-8 xl:grid-cols-[1.5fr_1fr]">
         <div class="space-y-6">
             <section class="rounded-lg border border-gray-200 bg-white p-5 shadow-sm">
                 <h2 class="text-lg font-semibold text-gray-950">Report snapshot</h2>
