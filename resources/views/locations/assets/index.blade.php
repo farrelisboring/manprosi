@@ -1,21 +1,16 @@
 @extends('layouts.app')
 
 @section('title', 'Assets by Location | Hospital Asset Manager')
+@section('page-eyebrow', 'Informasi Aset Per-ruangan')
+@section('page-heading', 'Aset Per-ruangan')
+
+@section('page-actions')
+    <a class="rounded-full border border-slate-200 px-5 py-3 text-sm font-semibold text-slate-700 transition hover:border-slate-300 hover:text-slate-950" href="{{ route('web.locations.index') }}">Kelola Ruangan</a>
+    <a class="rounded-full border border-slate-200 px-5 py-3 text-sm font-semibold text-slate-700 transition hover:border-slate-300 hover:text-slate-950" href="{{ route('web.location-maps.index') }}">Kelola Gedung</a>
+@endsection
 
 @section('content')
-    <section class="flex flex-col gap-3 lg:flex-row lg:items-end lg:justify-between">
-        <div>
-            <p class="text-sm font-medium text-amber-700">Informasi Aset Per-ruangan</p>
-            <h1 class="text-3xl font-semibold text-gray-950">Aset Per-ruangan</h1>
-        </div>
-
-        <div class="flex flex-wrap gap-3">
-            <a class="rounded-md border border-gray-300 px-4 py-2 text-sm font-medium text-gray-700 hover:border-gray-400 hover:text-gray-950" href="{{ route('web.locations.index') }}">Kelola Ruangan</a>
-            <a class="rounded-md border border-gray-300 px-4 py-2 text-sm font-medium text-gray-700 hover:border-gray-400 hover:text-gray-950" href="{{ route('web.location-maps.index') }}">Kelola Gedung</a>
-        </div>
-    </section>
-
-    <section class="mt-8 rounded-lg border border-gray-200 bg-white p-5 shadow-sm">
+    <section class="rounded-lg border border-gray-200 bg-white p-5 shadow-sm">
         <div class="flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
             <form action="{{ route('web.location-assets.index') }}" class="grid gap-4 lg:flex-1 lg:grid-cols-[minmax(0,2fr)_auto] lg:items-end">
                 <div>
