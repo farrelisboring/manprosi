@@ -15,6 +15,11 @@ class RoleUsersSeeder extends Seeder
     {
         $users = [
             [
+                'name' => 'Administrator User',
+                'email' => 'admin@example.com',
+                'role' => UserRole::Administrator,
+            ],
+            [
                 'name' => 'Staff User',
                 'email' => 'staff@example.com',
                 'role' => UserRole::Staff,
