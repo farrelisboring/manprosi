@@ -14,6 +14,7 @@ use App\Http\Controllers\Web\RepairUpdateController;
 use App\Services\QrCodeValueGenerator;
 use Illuminate\Support\Facades\Route;
 
+Route::view('/login', 'auth.login')->name('login');
 Route::get('/', DashboardController::class)->name('dashboard');
 
 Route::get('/assets/search', AssetSearchController::class)->name('web.asset-search.index');
