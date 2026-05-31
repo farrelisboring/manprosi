@@ -50,7 +50,15 @@
                             <p class="mt-2 text-base text-slate-500">Silahkan login untuk melanjutkan</p>
                         </div>
 
-                        <form class="mt-12 space-y-7" action="#" method="POST">
+                        <form class="mt-12 space-y-7" action="{{ route('login.store') }}" method="POST">
+                            @csrf
+
+                            @if ($errors->any())
+                                <div class="rounded-2xl border border-rose-200 bg-rose-50 px-4 py-3 text-sm font-medium text-rose-700">
+                                    {{ $errors->first() }}
+                                </div>
+                            @endif
+
                             <div>
                                 <label class="block text-sm font-semibold text-slate-900" for="login_identity">Email atau Username</label>
                                 <div class="mt-3 flex items-center gap-3 rounded-2xl border border-slate-200 bg-white px-4 py-4 shadow-sm">
@@ -58,7 +66,7 @@
                                         <path d="M12 12C14.7614 12 17 9.76142 17 7C17 4.23858 14.7614 2 12 2C9.23858 2 7 4.23858 7 7C7 9.76142 9.23858 12 12 12Z" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8"/>
                                         <path d="M4 20C4.85038 17.0144 7.59873 15 12 15C16.4013 15 19.1496 17.0144 20 20" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8"/>
                                     </svg>
-                                    <input class="w-full border-0 bg-transparent p-0 text-base text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-0" id="login_identity" name="login_identity" placeholder="Masukkan email atau username" type="text">
+                                    <input class="w-full border-0 bg-transparent p-0 text-base text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-0" id="login_identity" name="login_identity" placeholder="Masukkan email atau username" type="text" value="{{ old('login_identity') }}">
                                 </div>
                             </div>
 
@@ -79,11 +87,11 @@
                             </div>
 
                             <label class="flex items-center gap-3 text-sm font-semibold text-slate-700">
-                                <input class="h-5 w-5 rounded border-slate-300 text-[#4b61af] focus:ring-[#4b61af]" name="remember" type="checkbox">
+                                <input class="h-5 w-5 rounded border-slate-300 text-[#4b61af] focus:ring-[#4b61af]" name="remember" type="checkbox" value="1" @checked(old('remember'))>
                                 <span>Ingat saya</span>
                             </label>
 
-                            <button class="w-full rounded-2xl bg-[#4b61af] px-6 py-4 text-3xl font-black tracking-tight text-white transition hover:bg-[#3f5399]" type="button">
+                            <button class="w-full rounded-2xl bg-[#4b61af] px-6 py-4 text-3xl font-black tracking-tight text-white transition hover:bg-[#3f5399]" type="submit">
                                 Login
                             </button>
                         </form>

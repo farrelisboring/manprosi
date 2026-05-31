@@ -6,6 +6,7 @@ use App\Enums\AssetStatus;
 use App\Enums\DamageSeverity;
 use App\Enums\DamageStatus;
 use App\Enums\RepairUpdateType;
+use App\Enums\UserRole;
 use App\Models\Asset;
 use App\Models\AssetCategory;
 use App\Models\DamageReport;
@@ -28,6 +29,7 @@ class DamageReportWebUiTest extends TestCase
 
     public function test_dashboard_defaults_to_open_reports_and_shows_summary_counts(): void
     {
+        $this->signInAsRole(UserRole::Staff);
         [$asset, $location] = $this->createAssetWithContext();
 
         $reported = DamageReport::create([
@@ -71,6 +73,7 @@ class DamageReportWebUiTest extends TestCase
 
     public function test_dashboard_status_filter_supports_all_reports_option(): void
     {
+        $this->signInAsRole(UserRole::Staff);
         [$asset, $location] = $this->createAssetWithContext();
 
         $reported = DamageReport::create([
@@ -102,6 +105,7 @@ class DamageReportWebUiTest extends TestCase
 
     public function test_dashboard_filters_narrow_results_and_preserve_query_strings(): void
     {
+        $this->signInAsRole(UserRole::Staff);
         [$asset, $location] = $this->createAssetWithContext('AST-DMG-Q-001', 'Queue Asset');
         [$otherAsset, $otherLocation] = $this->createAssetWithContext('AST-DMG-Q-002', 'Other Asset', 'WARD-Q-2', 'Ward Queue 2');
         $reporter = User::factory()->create();
@@ -150,6 +154,7 @@ class DamageReportWebUiTest extends TestCase
 
     public function test_create_pages_render_and_asset_context_preselects_asset(): void
     {
+        $this->signInAsRole(UserRole::Staff);
         [$asset, $location] = $this->createAssetWithContext();
         $user = User::factory()->create();
 
@@ -168,6 +173,7 @@ class DamageReportWebUiTest extends TestCase
 
     public function test_damage_report_can_be_created_with_asset_location_defaults_in_web_ui(): void
     {
+        $this->signInAsRole(UserRole::Staff);
         [$asset, $location] = $this->createAssetWithContext();
 
         $this->post('/damage-reports', [
@@ -191,6 +197,7 @@ class DamageReportWebUiTest extends TestCase
 
     public function test_damage_report_create_requires_reported_at_in_web_ui(): void
     {
+        $this->signInAsRole(UserRole::Staff);
         [$asset] = $this->createAssetWithContext();
 
         $this->from('/damage-reports/create')
@@ -205,6 +212,7 @@ class DamageReportWebUiTest extends TestCase
 
     public function test_report_detail_renders_repair_timeline_and_repair_updates_advance_status(): void
     {
+        $this->signInAsRole(UserRole::Manager);
         [$asset, $location] = $this->createAssetWithContext();
         $manager = User::factory()->create();
         $report = DamageReport::create([
@@ -272,6 +280,7 @@ class DamageReportWebUiTest extends TestCase
 
     public function test_repair_update_requires_logged_at_result_summary_and_notes(): void
     {
+        $this->signInAsRole(UserRole::Manager);
         [$asset, $location] = $this->createAssetWithContext();
         $report = DamageReport::create([
             'asset_id' => $asset->id,
@@ -292,6 +301,7 @@ class DamageReportWebUiTest extends TestCase
 
     public function test_damage_report_can_be_updated_and_deleted_in_web_ui(): void
     {
+        $this->signInAsRole(UserRole::Manager);
         [$asset, $location] = $this->createAssetWithContext();
         $report = DamageReport::create([
             'asset_id' => $asset->id,

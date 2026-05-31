@@ -4,6 +4,7 @@ namespace Tests\Feature;
 
 use App\Enums\AssetStatus;
 use App\Enums\MovementSource;
+use App\Enums\UserRole;
 use App\Models\Asset;
 use App\Models\AssetCategory;
 use App\Models\AssetMovement;
@@ -26,6 +27,7 @@ class AssetMovementWebUiTest extends TestCase
 
     public function test_tracking_page_loads_with_current_placement_and_history(): void
     {
+        $this->signInAsRole(UserRole::Staff);
         $asset = $this->createAssetWithPlacement();
         $earlierLocation = $this->createLocation('MOVE-WEB-ROOT', 'Root');
         $latestMovement = AssetMovement::create([
@@ -59,6 +61,7 @@ class AssetMovementWebUiTest extends TestCase
 
     public function test_tracking_filters_apply_and_preserve_query_strings(): void
     {
+        $this->signInAsRole(UserRole::Staff);
         $asset = $this->createAssetWithPlacement();
         $from = $this->createLocation('MOVE-WEB-FROM', 'North Wing');
         $other = $this->createLocation('MOVE-WEB-ALT', 'South Wing');
@@ -93,6 +96,7 @@ class AssetMovementWebUiTest extends TestCase
 
     public function test_create_movement_page_renders_full_form_and_current_context(): void
     {
+        $this->signInAsRole(UserRole::Nurse);
         $asset = $this->createAssetWithPlacement();
         $destination = $this->createLocation('MOVE-WEB-DEST', 'Radiology');
         $destinationMap = $this->createMap($destination, 'Radiology Map');
@@ -113,6 +117,7 @@ class AssetMovementWebUiTest extends TestCase
 
     public function test_successful_movement_submission_updates_asset_and_redirects_to_tracking(): void
     {
+        $this->signInAsRole(UserRole::Nurse);
         $asset = $this->createAssetWithPlacement();
         $destination = $this->createLocation('MOVE-WEB-NEW', 'Ward West');
         $destinationMap = $this->createMap($destination, 'Ward West Map');
@@ -147,6 +152,7 @@ class AssetMovementWebUiTest extends TestCase
 
     public function test_movement_submission_without_destination_placement_clears_stale_map_data(): void
     {
+        $this->signInAsRole(UserRole::Nurse);
         $asset = $this->createAssetWithPlacement();
         $destination = $this->createLocation('MOVE-WEB-CLEAR', 'Storage Annex');
 
@@ -166,6 +172,7 @@ class AssetMovementWebUiTest extends TestCase
 
     public function test_same_location_movement_is_allowed_when_map_placement_changes_in_web_flow(): void
     {
+        $this->signInAsRole(UserRole::Nurse);
         $asset = $this->createAssetWithPlacement();
         $replacementMap = $this->createMap($asset->currentLocation, 'Secondary Room Map');
 
@@ -184,6 +191,7 @@ class AssetMovementWebUiTest extends TestCase
 
     public function test_invalid_destination_map_combination_fails_in_web_flow(): void
     {
+        $this->signInAsRole(UserRole::Nurse);
         $asset = $this->createAssetWithPlacement();
         $destination = $this->createLocation('MOVE-WEB-BAD', 'Lab East');
         $wrongLocation = $this->createLocation('MOVE-WEB-WRONG', 'Lab West');
@@ -201,6 +209,7 @@ class AssetMovementWebUiTest extends TestCase
 
     public function test_movement_create_requires_moved_at_in_web_flow(): void
     {
+        $this->signInAsRole(UserRole::Nurse);
         $asset = $this->createAssetWithPlacement();
         $destination = $this->createLocation('MOVE-WEB-REQ', 'Procedure Room');
 
@@ -214,6 +223,7 @@ class AssetMovementWebUiTest extends TestCase
 
     public function test_out_of_range_movement_timestamp_fails_validation_in_web_flow(): void
     {
+        $this->signInAsRole(UserRole::Nurse);
         $asset = $this->createAssetWithPlacement();
         $destination = $this->createLocation('MOVE-WEB-TIME', 'Overflow Ward');
 
@@ -235,6 +245,7 @@ class AssetMovementWebUiTest extends TestCase
 
     public function test_tracking_refresh_endpoint_returns_updated_partial_and_respects_filters(): void
     {
+        $this->signInAsRole(UserRole::Staff);
         $asset = $this->createAssetWithPlacement();
         $source = $this->createLocation('MOVE-WEB-SRC', 'Equipment Hub');
 

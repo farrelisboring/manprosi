@@ -82,4 +82,17 @@ class User extends Authenticatable
     {
         return $this->role === UserRole::Nurse;
     }
+
+    public function hasAnyRole(UserRole|string ...$roles): bool
+    {
+        if ($this->isAdministrator()) {
+            return true;
+        }
+
+        $allowedRoles = collect($roles)
+            ->map(static fn (UserRole|string $role): string => $role instanceof UserRole ? $role->value : $role)
+            ->all();
+
+        return in_array($this->role?->value, $allowedRoles, true);
+    }
 }

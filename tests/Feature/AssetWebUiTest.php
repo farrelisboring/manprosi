@@ -3,6 +3,7 @@
 namespace Tests\Feature;
 
 use App\Enums\AssetStatus;
+use App\Enums\UserRole;
 use App\Models\Asset;
 use App\Models\AssetCategory;
 use App\Models\Location;
@@ -20,6 +21,7 @@ class AssetWebUiTest extends TestCase
         parent::setUp();
 
         $this->withoutVite();
+        $this->signInAsRole(UserRole::Staff);
     }
 
     public function test_dashboard_loads_and_shows_asset_summary_counts(): void

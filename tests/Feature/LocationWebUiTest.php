@@ -2,6 +2,7 @@
 
 namespace Tests\Feature;
 
+use App\Enums\UserRole;
 use App\Models\Asset;
 use App\Models\AssetCategory;
 use App\Models\Location;
@@ -18,6 +19,7 @@ class LocationWebUiTest extends TestCase
         parent::setUp();
 
         $this->withoutVite();
+        $this->signInAsRole(UserRole::Manager);
     }
 
     public function test_location_pages_load(): void
