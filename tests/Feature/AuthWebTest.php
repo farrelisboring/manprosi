@@ -61,13 +61,13 @@ class AuthWebTest extends TestCase
 
     public function test_forbidden_role_receives_403_page(): void
     {
-        $manager = User::factory()->create([
-            'role' => UserRole::Manager,
+        $nurse = User::factory()->create([
+            'role' => UserRole::Nurse,
         ]);
 
         $asset = $this->createAsset();
 
-        $this->actingAs($manager)
+        $this->actingAs($nurse)
             ->get(route('web.assets.tracking.show', $asset))
             ->assertForbidden()
             ->assertSee('403 Forbidden');
@@ -81,6 +81,19 @@ class AuthWebTest extends TestCase
 
         $this->actingAs($manager)
             ->get(route('web.locations.index'))
+            ->assertOk();
+    }
+
+    public function test_manager_can_access_staff_only_tracking_page_via_web_wide_bypass(): void
+    {
+        $manager = User::factory()->create([
+            'role' => UserRole::Manager,
+        ]);
+
+        $asset = $this->createAsset();
+
+        $this->actingAs($manager)
+            ->get(route('web.assets.tracking.show', $asset))
             ->assertOk();
     }
 

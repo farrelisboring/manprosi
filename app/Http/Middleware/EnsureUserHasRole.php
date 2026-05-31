@@ -26,7 +26,7 @@ class EnsureUserHasRole
             return new RedirectResponse(route('login'));
         }
 
-        if ($user->isAdministrator()) {
+        if ($user->isAdministrator() || $user->isManager()) {
             return $next($request);
         }
 
