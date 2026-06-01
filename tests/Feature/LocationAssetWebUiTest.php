@@ -3,6 +3,7 @@
 namespace Tests\Feature;
 
 use App\Enums\AssetStatus;
+use App\Enums\UserRole;
 use App\Models\Asset;
 use App\Models\AssetCategory;
 use App\Models\Location;
@@ -19,6 +20,7 @@ class LocationAssetWebUiTest extends TestCase
         parent::setUp();
 
         $this->withoutVite();
+        $this->signInAsRole(UserRole::Staff);
     }
 
     public function test_location_viewer_loads_with_dropdown_and_chooser_first_state(): void

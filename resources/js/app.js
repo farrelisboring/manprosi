@@ -195,9 +195,32 @@ const setupBlockedActionPrompts = () => {
     });
 };
 
+const setupGeofenceForms = () => {
+    const geofenceForms = document.querySelectorAll('[data-geofence-form]');
+
+    geofenceForms.forEach((geofenceForm) => {
+        const toggle = geofenceForm.querySelector('[data-geofence-toggle]');
+        const fieldset = geofenceForm.querySelector('[data-geofence-fieldset]');
+
+        if (!toggle || !fieldset) {
+            return;
+        }
+
+        const syncState = () => {
+            const isEnabled = toggle.checked;
+            fieldset.disabled = !isEnabled;
+            fieldset.classList.toggle('opacity-50', !isEnabled);
+        };
+
+        syncState();
+        toggle.addEventListener('change', syncState);
+    });
+};
+
 document.addEventListener('DOMContentLoaded', () => {
     setupMapDependentAssetForms();
     setupPollers();
     setupQrLabelPreviews();
     setupBlockedActionPrompts();
+    setupGeofenceForms();
 });

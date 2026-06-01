@@ -30,6 +30,7 @@ class UpdateLocationRequest extends FormRequest
             'type' => ['required', 'string', 'max:30'],
             'floor_number' => ['nullable', 'integer'],
             'description' => ['nullable', 'string'],
+            'denah_image' => ['nullable', 'image', 'max:4096'],
             'is_active' => ['required', 'boolean'],
         ];
     }

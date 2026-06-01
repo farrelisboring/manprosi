@@ -13,7 +13,7 @@
     </section>
 
     <section class="mt-8 rounded-lg border border-gray-200 bg-white p-6 shadow-sm">
-        <form action="{{ route('web.locations.store') }}" method="POST">
+        <form action="{{ route('web.locations.store') }}" enctype="multipart/form-data" method="POST">
             @include('locations._form', [
                 'location' => $location,
                 'submitLabel' => 'Simpan Ruangan',

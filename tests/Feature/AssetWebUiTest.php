@@ -3,8 +3,11 @@
 namespace Tests\Feature;
 
 use App\Enums\AssetStatus;
+use App\Enums\GeofenceRuleType;
+use App\Enums\UserRole;
 use App\Models\Asset;
 use App\Models\AssetCategory;
+use App\Models\AssetGeofence;
 use App\Models\Location;
 use App\Models\LocationMap;
 use Illuminate\Support\Carbon;
@@ -20,6 +23,7 @@ class AssetWebUiTest extends TestCase
         parent::setUp();
 
         $this->withoutVite();
+        $this->signInAsRole(UserRole::Staff);
     }
 
     public function test_dashboard_loads_and_shows_asset_summary_counts(): void
@@ -133,7 +137,9 @@ class AssetWebUiTest extends TestCase
             ->assertDontSee('Barcode value')
             ->assertDontSee('RFID tag')
             ->assertDontSee('Position X')
-            ->assertDontSee('Position Y');
+            ->assertDontSee('Position Y')
+            ->assertSee('Peraturan Geofence')
+            ->assertSee('Ketika Pindah Ruangan');
 
         $this->get('/assets/'.$asset->id.'/edit')
             ->assertOk()
@@ -147,6 +153,7 @@ class AssetWebUiTest extends TestCase
         $category = $this->createCategory();
         $location = $this->createLocation('LOC-WEB-020', 'Ward C');
         $map = $this->createMap($location, 'Ward C Map');
+        $forbiddenLocation = $this->createLocation('LOC-WEB-021', 'Ward D');
 
         $storeResponse = $this->post('/assets', [
             'asset_code' => 'AST-WEB-020',
@@ -157,6 +164,9 @@ class AssetWebUiTest extends TestCase
             'current_map_id' => $map->id,
             'position_x' => 11.5,
             'position_y' => 22.5,
+            'geofence_enabled' => '1',
+            'geofence_on_room_change' => '1',
+            'geofence_forbidden_location_ids' => [$forbiddenLocation->id],
         ]);
 
         $asset = Asset::firstOrFail();
@@ -173,6 +183,9 @@ class AssetWebUiTest extends TestCase
             'current_map_id' => $map->id,
             'position_x' => 30.1,
             'position_y' => 44.2,
+            'geofence_enabled' => '1',
+            'geofence_on_room_change' => '1',
+            'geofence_forbidden_location_ids' => [$forbiddenLocation->id],
         ])
             ->assertRedirect('/assets/'.$asset->id)
             ->assertSessionHas('status_message', 'Asset updated successfully.');
@@ -181,6 +194,53 @@ class AssetWebUiTest extends TestCase
             'id' => $asset->id,
             'name' => 'Ventilator Updated',
             'current_map_id' => $map->id,
+        ]);
+        $this->assertDatabaseHas('asset_geofences', [
+            'asset_id' => $asset->id,
+            'rule_type' => GeofenceRuleType::RoomChangeNotification->value,
+            'location_id' => null,
+        ]);
+        $this->assertDatabaseHas('asset_geofences', [
+            'asset_id' => $asset->id,
+            'rule_type' => GeofenceRuleType::RestrictedEntry->value,
+            'location_id' => $forbiddenLocation->id,
+        ]);
+    }
+
+    public function test_asset_geofence_rules_are_removed_when_disabled_on_update(): void
+    {
+        $category = $this->createCategory('CAT-WEB-GEOFENCE', 'Geofence');
+        $forbiddenLocation = $this->createLocation('LOC-WEB-GEOFENCE', 'Forbidden Ward');
+        $asset = Asset::create([
+            'asset_code' => 'AST-WEB-GEOFENCE',
+            'name' => 'Geofence Asset',
+            'category_id' => $category->id,
+        ]);
+
+        AssetGeofence::create([
+            'name' => 'Ketika Pindah Ruangan',
+            'asset_id' => $asset->id,
+            'rule_type' => GeofenceRuleType::RoomChangeNotification->value,
+            'is_active' => true,
+        ]);
+
+        AssetGeofence::create([
+            'name' => 'Ruangan Terlarang',
+            'asset_id' => $asset->id,
+            'location_id' => $forbiddenLocation->id,
+            'rule_type' => GeofenceRuleType::RestrictedEntry->value,
+            'is_active' => true,
+        ]);
+
+        $this->patch('/assets/'.$asset->id, [
+            'asset_code' => 'AST-WEB-GEOFENCE',
+            'name' => 'Geofence Asset Updated',
+            'category_id' => $category->id,
+            'geofence_enabled' => '0',
+        ])->assertRedirect('/assets/'.$asset->id);
+
+        $this->assertDatabaseMissing('asset_geofences', [
+            'asset_id' => $asset->id,
         ]);
     }
 

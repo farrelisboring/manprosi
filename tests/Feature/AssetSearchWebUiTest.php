@@ -3,6 +3,7 @@
 namespace Tests\Feature;
 
 use App\Enums\AssetStatus;
+use App\Enums\UserRole;
 use App\Models\Asset;
 use App\Models\AssetCategory;
 use App\Models\Location;
@@ -19,6 +20,7 @@ class AssetSearchWebUiTest extends TestCase
         parent::setUp();
 
         $this->withoutVite();
+        $this->signInAsRole(UserRole::Staff);
     }
 
     public function test_search_page_loads_with_input_and_does_not_show_inventory_before_search(): void

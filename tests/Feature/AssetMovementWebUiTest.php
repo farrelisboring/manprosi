@@ -3,9 +3,14 @@
 namespace Tests\Feature;
 
 use App\Enums\AssetStatus;
+use App\Enums\AlertType;
+use App\Enums\GeofenceRuleType;
 use App\Enums\MovementSource;
+use App\Enums\UserRole;
 use App\Models\Asset;
+use App\Models\AssetAlert;
 use App\Models\AssetCategory;
+use App\Models\AssetGeofence;
 use App\Models\AssetMovement;
 use App\Models\Location;
 use App\Models\LocationMap;
@@ -26,6 +31,7 @@ class AssetMovementWebUiTest extends TestCase
 
     public function test_tracking_page_loads_with_current_placement_and_history(): void
     {
+        $this->signInAsRole(UserRole::Staff);
         $asset = $this->createAssetWithPlacement();
         $earlierLocation = $this->createLocation('MOVE-WEB-ROOT', 'Root');
         $latestMovement = AssetMovement::create([
@@ -59,6 +65,7 @@ class AssetMovementWebUiTest extends TestCase
 
     public function test_tracking_filters_apply_and_preserve_query_strings(): void
     {
+        $this->signInAsRole(UserRole::Staff);
         $asset = $this->createAssetWithPlacement();
         $from = $this->createLocation('MOVE-WEB-FROM', 'North Wing');
         $other = $this->createLocation('MOVE-WEB-ALT', 'South Wing');
@@ -93,6 +100,7 @@ class AssetMovementWebUiTest extends TestCase
 
     public function test_create_movement_page_renders_full_form_and_current_context(): void
     {
+        $this->signInAsRole(UserRole::Nurse);
         $asset = $this->createAssetWithPlacement();
         $destination = $this->createLocation('MOVE-WEB-DEST', 'Radiology');
         $destinationMap = $this->createMap($destination, 'Radiology Map');
@@ -113,6 +121,7 @@ class AssetMovementWebUiTest extends TestCase
 
     public function test_successful_movement_submission_updates_asset_and_redirects_to_tracking(): void
     {
+        $this->signInAsRole(UserRole::Nurse);
         $asset = $this->createAssetWithPlacement();
         $destination = $this->createLocation('MOVE-WEB-NEW', 'Ward West');
         $destinationMap = $this->createMap($destination, 'Ward West Map');
@@ -147,6 +156,7 @@ class AssetMovementWebUiTest extends TestCase
 
     public function test_movement_submission_without_destination_placement_clears_stale_map_data(): void
     {
+        $this->signInAsRole(UserRole::Nurse);
         $asset = $this->createAssetWithPlacement();
         $destination = $this->createLocation('MOVE-WEB-CLEAR', 'Storage Annex');
 
@@ -166,6 +176,7 @@ class AssetMovementWebUiTest extends TestCase
 
     public function test_same_location_movement_is_allowed_when_map_placement_changes_in_web_flow(): void
     {
+        $this->signInAsRole(UserRole::Nurse);
         $asset = $this->createAssetWithPlacement();
         $replacementMap = $this->createMap($asset->currentLocation, 'Secondary Room Map');
 
@@ -184,6 +195,7 @@ class AssetMovementWebUiTest extends TestCase
 
     public function test_invalid_destination_map_combination_fails_in_web_flow(): void
     {
+        $this->signInAsRole(UserRole::Nurse);
         $asset = $this->createAssetWithPlacement();
         $destination = $this->createLocation('MOVE-WEB-BAD', 'Lab East');
         $wrongLocation = $this->createLocation('MOVE-WEB-WRONG', 'Lab West');
@@ -201,6 +213,7 @@ class AssetMovementWebUiTest extends TestCase
 
     public function test_movement_create_requires_moved_at_in_web_flow(): void
     {
+        $this->signInAsRole(UserRole::Nurse);
         $asset = $this->createAssetWithPlacement();
         $destination = $this->createLocation('MOVE-WEB-REQ', 'Procedure Room');
 
@@ -214,6 +227,7 @@ class AssetMovementWebUiTest extends TestCase
 
     public function test_out_of_range_movement_timestamp_fails_validation_in_web_flow(): void
     {
+        $this->signInAsRole(UserRole::Nurse);
         $asset = $this->createAssetWithPlacement();
         $destination = $this->createLocation('MOVE-WEB-TIME', 'Overflow Ward');
 
@@ -235,6 +249,7 @@ class AssetMovementWebUiTest extends TestCase
 
     public function test_tracking_refresh_endpoint_returns_updated_partial_and_respects_filters(): void
     {
+        $this->signInAsRole(UserRole::Staff);
         $asset = $this->createAssetWithPlacement();
         $source = $this->createLocation('MOVE-WEB-SRC', 'Equipment Hub');
 
@@ -261,6 +276,154 @@ class AssetMovementWebUiTest extends TestCase
             ->assertSee('Tracked by gate reader')
             ->assertDontSee('Manual adjustment')
             ->assertSee('Riwayat Perpindahan');
+    }
+
+    public function test_geofence_page_loads_with_alerts_and_without_tracking_filters(): void
+    {
+        $this->signInAsRole(UserRole::Staff);
+        $asset = $this->createAssetWithPlacement();
+        $geofence = AssetGeofence::create([
+            'name' => 'Forbidden Ward Rule',
+            'asset_id' => $asset->id,
+            'location_id' => $asset->current_location_id,
+            'rule_type' => GeofenceRuleType::RestrictedEntry->value,
+            'is_active' => true,
+        ]);
+
+        AssetAlert::create([
+            'asset_id' => $asset->id,
+            'geofence_id' => $geofence->id,
+            'location_id' => $asset->current_location_id,
+            'alert_type' => AlertType::GeofenceBreach->value,
+            'message' => 'Aset dipindahkan ke ruangan terlarang.',
+            'status' => 'new',
+            'triggered_at' => '2026-05-15 15:00:00',
+        ]);
+
+        $this->get('/assets/'.$asset->id.'/geofence')
+            ->assertOk()
+            ->assertSee('Notifikasi Geofence')
+            ->assertSee('Aset dipindahkan ke ruangan terlarang.')
+            ->assertDontSee('Lokasi Sekarang')
+            ->assertDontSee('Tanggal Perpindahan Terbaru')
+            ->assertDontSee('Filter');
+    }
+
+    public function test_room_change_rule_creates_single_geofence_alert_after_movement(): void
+    {
+        $this->signInAsRole(UserRole::Nurse);
+        $asset = $this->createAssetWithPlacement();
+        $destination = $this->createLocation('MOVE-WEB-GEOFENCE-1', 'Ward G');
+
+        AssetGeofence::create([
+            'name' => 'Ketika Pindah Ruangan',
+            'asset_id' => $asset->id,
+            'rule_type' => GeofenceRuleType::RoomChangeNotification->value,
+            'is_active' => true,
+        ]);
+
+        $this->post('/assets/'.$asset->id.'/movements', [
+            'to_location_id' => $destination->id,
+            'moved_at' => '2026-05-15 16:00:00',
+        ])->assertRedirect('/assets/'.$asset->id.'/tracking');
+
+        $this->assertDatabaseHas('asset_alerts', [
+            'asset_id' => $asset->id,
+            'location_id' => $destination->id,
+            'alert_type' => AlertType::GeofenceBreach->value,
+            'message' => 'Aset berpindah ke ruangan lain.',
+        ]);
+    }
+
+    public function test_forbidden_room_rule_creates_single_geofence_alert_after_movement(): void
+    {
+        $this->signInAsRole(UserRole::Nurse);
+        $asset = $this->createAssetWithPlacement();
+        $destination = $this->createLocation('MOVE-WEB-GEOFENCE-2', 'Ward H');
+
+        AssetGeofence::create([
+            'name' => 'Ruangan Terlarang: Ward H',
+            'asset_id' => $asset->id,
+            'location_id' => $destination->id,
+            'rule_type' => GeofenceRuleType::RestrictedEntry->value,
+            'is_active' => true,
+        ]);
+
+        $this->post('/assets/'.$asset->id.'/movements', [
+            'to_location_id' => $destination->id,
+            'moved_at' => '2026-05-15 16:30:00',
+        ])->assertRedirect('/assets/'.$asset->id.'/tracking');
+
+        $this->assertDatabaseHas('asset_alerts', [
+            'asset_id' => $asset->id,
+            'location_id' => $destination->id,
+            'alert_type' => AlertType::GeofenceBreach->value,
+            'message' => 'Aset dipindahkan ke ruangan terlarang: Ward H.',
+        ]);
+    }
+
+    public function test_matching_both_geofence_rules_creates_one_combined_alert(): void
+    {
+        $this->signInAsRole(UserRole::Nurse);
+        $asset = $this->createAssetWithPlacement();
+        $destination = $this->createLocation('MOVE-WEB-GEOFENCE-3', 'Ward I');
+
+        AssetGeofence::create([
+            'name' => 'Ketika Pindah Ruangan',
+            'asset_id' => $asset->id,
+            'rule_type' => GeofenceRuleType::RoomChangeNotification->value,
+            'is_active' => true,
+        ]);
+
+        AssetGeofence::create([
+            'name' => 'Ruangan Terlarang: Ward I',
+            'asset_id' => $asset->id,
+            'location_id' => $destination->id,
+            'rule_type' => GeofenceRuleType::RestrictedEntry->value,
+            'is_active' => true,
+        ]);
+
+        $this->post('/assets/'.$asset->id.'/movements', [
+            'to_location_id' => $destination->id,
+            'moved_at' => '2026-05-15 17:00:00',
+        ])->assertRedirect('/assets/'.$asset->id.'/tracking');
+
+        $this->assertDatabaseCount('asset_alerts', 1);
+        $this->assertDatabaseHas('asset_alerts', [
+            'asset_id' => $asset->id,
+            'location_id' => $destination->id,
+            'alert_type' => AlertType::GeofenceBreach->value,
+            'message' => 'Aset berpindah ke ruangan lain dan masuk ke ruangan terlarang: Ward I.',
+        ]);
+    }
+
+    public function test_same_room_movement_does_not_trigger_room_change_or_forbidden_alerts(): void
+    {
+        $this->signInAsRole(UserRole::Nurse);
+        $asset = $this->createAssetWithPlacement();
+
+        AssetGeofence::create([
+            'name' => 'Ketika Pindah Ruangan',
+            'asset_id' => $asset->id,
+            'rule_type' => GeofenceRuleType::RoomChangeNotification->value,
+            'is_active' => true,
+        ]);
+
+        AssetGeofence::create([
+            'name' => 'Ruangan Terlarang',
+            'asset_id' => $asset->id,
+            'location_id' => $asset->current_location_id,
+            'rule_type' => GeofenceRuleType::RestrictedEntry->value,
+            'is_active' => true,
+        ]);
+
+        $this->post('/assets/'.$asset->id.'/movements', [
+            'to_location_id' => $asset->current_location_id,
+            'current_map_id' => $asset->current_map_id,
+            'moved_at' => '2026-05-15 17:30:00',
+        ])->assertRedirect('/assets/'.$asset->id.'/tracking');
+
+        $this->assertDatabaseCount('asset_alerts', 0);
     }
 
     private function createAssetWithPlacement(): Asset

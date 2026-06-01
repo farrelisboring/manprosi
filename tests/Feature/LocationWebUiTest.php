@@ -2,11 +2,14 @@
 
 namespace Tests\Feature;
 
+use App\Enums\UserRole;
 use App\Models\Asset;
 use App\Models\AssetCategory;
 use App\Models\Location;
 use App\Models\LocationMap;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Http\UploadedFile;
+use Illuminate\Support\Facades\Storage;
 use Tests\TestCase;
 
 class LocationWebUiTest extends TestCase
@@ -18,6 +21,8 @@ class LocationWebUiTest extends TestCase
         parent::setUp();
 
         $this->withoutVite();
+        $this->signInAsRole(UserRole::Manager);
+        Storage::fake('public');
     }
 
     public function test_location_pages_load(): void
@@ -51,6 +56,7 @@ class LocationWebUiTest extends TestCase
     {
         $gedung = $this->createGedung('Gedung A');
         $otherGedung = $this->createGedung('Gedung B');
+        $denah = UploadedFile::fake()->create('denah-awal.png', 120, 'image/png');
 
         $this->post('/locations', [
             'location_map_id' => $gedung->id,
@@ -59,6 +65,7 @@ class LocationWebUiTest extends TestCase
             'type' => 'Building',
             'floor_number' => 4,
             'description' => 'Critical care floor.',
+            'denah_image' => $denah,
             'is_active' => '1',
         ])->assertRedirect();
 
@@ -69,6 +76,11 @@ class LocationWebUiTest extends TestCase
         $this->assertSame('Building', $location->type);
         $this->assertSame(4, $location->floor_number);
         $this->assertTrue($location->is_active);
+        $this->assertNotNull($location->denah_image_path);
+        Storage::disk('public')->assertExists($location->denah_image_path);
+
+        $oldDenahPath = $location->denah_image_path;
+        $newDenah = UploadedFile::fake()->create('denah-baru.png', 120, 'image/png');
 
         $this->put('/locations/'.$location->id, [
             'location_map_id' => $otherGedung->id,
@@ -77,6 +89,7 @@ class LocationWebUiTest extends TestCase
             'type' => 'Lab',
             'floor_number' => 5,
             'description' => 'Updated notes.',
+            'denah_image' => $newDenah,
             'is_active' => '0',
         ])->assertRedirect('/locations/'.$location->id);
 
@@ -87,11 +100,17 @@ class LocationWebUiTest extends TestCase
         $this->assertSame('Lab', $location->type);
         $this->assertSame(5, $location->floor_number);
         $this->assertFalse($location->is_active);
+        $this->assertNotSame($oldDenahPath, $location->denah_image_path);
+        Storage::disk('public')->assertMissing($oldDenahPath);
+        Storage::disk('public')->assertExists($location->denah_image_path);
     }
 
     public function test_location_delete_succeeds_when_no_related_rows_exist(): void
     {
         $location = $this->createLocation('LOC-UI-020', 'Archive Room');
+        $location->update([
+            'denah_image_path' => UploadedFile::fake()->create('denah-hapus.png', 120, 'image/png')->store('denah-locations', 'public'),
+        ]);
 
         $this->delete('/locations/'.$location->id)
             ->assertRedirect('/locations');
@@ -99,6 +118,7 @@ class LocationWebUiTest extends TestCase
         $this->assertSoftDeleted('locations', [
             'id' => $location->id,
         ]);
+        Storage::disk('public')->assertMissing($location->denah_image_path);
     }
 
     public function test_location_delete_is_not_blocked_by_a_linked_gedung(): void

@@ -58,6 +58,23 @@
                     <dt class="text-xs font-medium uppercase tracking-wide text-gray-500">Description</dt>
                     <dd class="mt-1 text-sm text-gray-700">{{ $location->description ?: 'No description recorded.' }}</dd>
                 </div>
+
+                <div class="mt-5 border-t border-gray-200 pt-5">
+                    <dt class="text-xs font-medium uppercase tracking-wide text-gray-500">Denah</dt>
+                    <dd class="mt-3">
+                        @if ($location->denah_image_path)
+                            <div class="overflow-hidden rounded-xl border border-gray-200 bg-gray-50">
+                                <img
+                                    alt="Denah {{ $location->name }}"
+                                    class="max-h-[26rem] w-full object-contain"
+                                    src="{{ '/storage/'.ltrim($location->denah_image_path, '/') }}"
+                                >
+                            </div>
+                        @else
+                            <p class="text-sm text-gray-700">Belum ada gambar denah yang diunggah.</p>
+                        @endif
+                    </dd>
+                </div>
             </section>
         </div>
 

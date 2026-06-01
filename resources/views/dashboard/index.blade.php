@@ -11,6 +11,12 @@
     <a class="rounded-full bg-slate-950 px-5 py-3 text-sm font-semibold text-white transition hover:bg-slate-800" href="{{ route('web.assets.create') }}">
         Tambah Aset
     </a>
+    <form action="{{ route('logout') }}" method="POST">
+        @csrf
+        <button class="rounded-full border border-rose-200 px-5 py-3 text-sm font-semibold text-rose-700 transition hover:border-rose-300 hover:bg-rose-50" type="submit">
+            Logout
+        </button>
+    </form>
 @endsection
 
 @section('content')
