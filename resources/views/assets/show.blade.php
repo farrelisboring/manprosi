@@ -9,6 +9,7 @@
 @section('page-actions')
     <a class="rounded-full border border-slate-200 px-5 py-3 text-sm font-semibold text-slate-700 transition hover:border-slate-300 hover:text-slate-950" href="{{ route('web.assets.index') }}">Kembali ke Aset</a>
     <a class="rounded-full border border-slate-200 px-5 py-3 text-sm font-semibold text-slate-700 transition hover:border-slate-300 hover:text-slate-950" href="{{ route('web.assets.tracking.show', $asset) }}">Track Aset</a>
+    <a class="rounded-full border border-slate-200 px-5 py-3 text-sm font-semibold text-slate-700 transition hover:border-slate-300 hover:text-slate-950" href="{{ route('web.assets.geofence.show', $asset) }}">Notifikasi Geofence</a>
     <a class="rounded-full border border-slate-200 px-5 py-3 text-sm font-semibold text-slate-700 transition hover:border-slate-300 hover:text-slate-950" href="{{ route('web.assets.movements.create', $asset) }}">Form Pemindahan Aset</a>
     <a class="rounded-full border border-rose-300 px-5 py-3 text-sm font-semibold text-rose-700 transition hover:border-rose-400 hover:text-rose-900" href="{{ route('web.damage-reports.create', ['asset_id' => $asset->id]) }}">Lapor Kerusakan</a>
     <a class="rounded-full bg-slate-950 px-5 py-3 text-sm font-semibold text-white transition hover:bg-slate-800" href="{{ route('web.assets.edit', $asset) }}">Edit asset</a>

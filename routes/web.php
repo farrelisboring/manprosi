@@ -3,6 +3,7 @@
 use App\Enums\UserRole;
 use App\Http\Controllers\Auth\AuthenticatedSessionController;
 use App\Http\Controllers\Web\AssetController;
+use App\Http\Controllers\Web\AssetGeofenceController;
 use App\Http\Controllers\Web\AssetMovementController;
 use App\Http\Controllers\Web\AssetQrLabelController;
 use App\Http\Controllers\Web\AssetQrLabelRedirectController;
@@ -74,6 +75,7 @@ Route::middleware(['auth', 'role:'.UserRole::Staff->value])->group(function (): 
     Route::delete('/assets/{asset}/qr-label', [AssetQrLabelController::class, 'destroy'])->name('web.assets.qr-label.destroy');
     Route::get('/assets/{asset}/tracking', [AssetMovementController::class, 'show'])->name('web.assets.tracking.show');
     Route::get('/assets/{asset}/tracking/panel', [AssetMovementController::class, 'refresh'])->name('web.assets.tracking.refresh');
+    Route::get('/assets/{asset}/geofence', [AssetGeofenceController::class, 'show'])->name('web.assets.geofence.show');
     Route::get('/{qrCodeValue}', AssetQrLabelRedirectController::class)
         ->where('qrCodeValue', QrCodeValueGenerator::routePattern())
         ->name('web.qr-labels.redirect');

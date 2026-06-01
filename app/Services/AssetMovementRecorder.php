@@ -9,6 +9,11 @@ use Illuminate\Support\Facades\DB;
 
 class AssetMovementRecorder
 {
+    public function __construct(
+        private readonly AssetGeofenceAlertService $assetGeofenceAlertService,
+    ) {
+    }
+
     public function record(Asset $asset, array $validated): AssetMovement
     {
         return DB::transaction(function () use ($asset, $validated): AssetMovement {
@@ -29,6 +34,8 @@ class AssetMovementRecorder
                 'position_x' => $validated['position_x'] ?? null,
                 'position_y' => $validated['position_y'] ?? null,
             ])->save();
+
+            $this->assetGeofenceAlertService->createAlertsForMovement($asset->fresh(), $movement);
 
             return $movement;
         });

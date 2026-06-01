@@ -21,6 +21,7 @@ class UpdateAssetRequest extends FormRequest
     protected function prepareForValidation(): void
     {
         $this->normalizeAssetPlacementInput();
+        $this->normalizeGeofenceInput();
 
         if ($this->exists('qr_code_value')) {
             $this->merge([
@@ -51,11 +52,30 @@ class UpdateAssetRequest extends FormRequest
             'position_x' => ['sometimes', ...$this->assetPlacementRules()['position_x']],
             'position_y' => ['sometimes', ...$this->assetPlacementRules()['position_y']],
             'notes' => ['sometimes', 'nullable', 'string'],
+            'geofence_enabled' => ['sometimes', 'nullable', 'boolean'],
+            'geofence_on_room_change' => ['sometimes', 'nullable', 'boolean'],
+            'geofence_forbidden_location_ids' => ['sometimes', 'nullable', 'array'],
+            'geofence_forbidden_location_ids.*' => ['integer', 'distinct', Rule::exists('locations', 'id')],
         ];
     }
 
     public function after(): array
     {
         return $this->assetPlacementAfter();
+    }
+
+    protected function normalizeGeofenceInput(): void
+    {
+        $forbiddenLocationIds = collect((array) $this->input('geofence_forbidden_location_ids', []))
+            ->filter(fn (mixed $value) => $value !== null && $value !== '')
+            ->map(fn (mixed $value) => (int) $value)
+            ->values()
+            ->all();
+
+        $this->merge([
+            'geofence_enabled' => $this->boolean('geofence_enabled'),
+            'geofence_on_room_change' => $this->boolean('geofence_on_room_change'),
+            'geofence_forbidden_location_ids' => $forbiddenLocationIds,
+        ]);
     }
 }
