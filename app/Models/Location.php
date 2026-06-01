@@ -10,7 +10,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
-#[Fillable(['parent_id', 'location_map_id', 'code', 'name', 'type', 'floor_number', 'description', 'is_active'])]
+#[Fillable(['parent_id', 'location_map_id', 'code', 'name', 'type', 'floor_number', 'description', 'denah_image_path', 'is_active'])]
 class Location extends Model
 {
     use HasFactory, SoftDeletes;

@@ -15,7 +15,7 @@
     </section>
 
     <section class="mt-6 rounded-lg border border-gray-200 bg-white p-6 shadow-sm">
-        <form action="{{ route('web.locations.update', $location) }}" method="POST">
+        <form action="{{ route('web.locations.update', $location) }}" enctype="multipart/form-data" method="POST">
             @include('locations._form', [
                 'location' => $location,
                 'submitLabel' => 'Simpan Perubahan',

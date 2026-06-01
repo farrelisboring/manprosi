@@ -73,12 +73,33 @@
 
             <section class="rounded-lg border border-gray-200 bg-white p-5 shadow-sm">
                 <h2 class="text-lg font-semibold text-gray-950">Lokasi</h2>
-                <dl class="mt-5 grid gap-5 sm:grid-cols-2">
+                <div class="mt-5 grid gap-6 lg:grid-cols-[minmax(0,0.9fr)_minmax(0,1.1fr)]">
+                    <dl class="grid gap-5 sm:grid-cols-2">
+                        <div class="sm:col-span-2">
+                            <dt class="text-xs font-medium uppercase tracking-wide text-gray-500">Ruangan Saat Ini</dt>
+                            <dd class="mt-1 text-sm text-gray-900">{{ $asset->currentLocation?->name ?? 'Unassigned' }}</dd>
+                        </div>
+                    </dl>
+
                     <div>
-                        <dt class="text-xs font-medium uppercase tracking-wide text-gray-500">Ruangan Saat Ini</dt>
-                        <dd class="mt-1 text-sm text-gray-900">{{ $asset->currentLocation?->name ?? 'Unassigned' }}</dd>
+                        <p class="text-xs font-medium uppercase tracking-wide text-gray-500">Denah Ruangan</p>
+                        <div class="mt-3">
+                            @if ($asset->currentLocation?->denah_image_path)
+                                <div class="overflow-hidden rounded-xl border border-gray-200 bg-gray-50">
+                                    <img
+                                        alt="Denah {{ $asset->currentLocation->name }}"
+                                        class="max-h-[24rem] w-full object-contain"
+                                        src="{{ '/storage/'.ltrim($asset->currentLocation->denah_image_path, '/') }}"
+                                    >
+                                </div>
+                            @else
+                                <div class="rounded-xl border border-dashed border-gray-300 bg-gray-50 px-4 py-8 text-center text-sm text-gray-600">
+                                    Belum ada gambar denah untuk ruangan ini.
+                                </div>
+                            @endif
+                        </div>
                     </div>
-                </dl>
+                </div>
             </section>
         </div>
 

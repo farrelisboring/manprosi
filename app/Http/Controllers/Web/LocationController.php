@@ -10,11 +10,15 @@ use App\Models\LocationMap;
 use App\Services\LocationDeletionGuard;
 use Illuminate\Contracts\View\View;
 use Illuminate\Http\RedirectResponse;
+use Illuminate\Http\UploadedFile;
 use Illuminate\Pagination\LengthAwarePaginator;
 use Illuminate\Support\Collection;
+use Illuminate\Support\Facades\Storage;
 
 class LocationController extends Controller
 {
+    private const DENAHPATH_DIRECTORY = 'denah-locations';
+
     public function __construct(private readonly LocationDeletionGuard $deletionGuard)
     {
     }
@@ -40,7 +44,7 @@ class LocationController extends Controller
 
     public function store(StoreLocationRequest $request): RedirectResponse
     {
-        $location = Location::create($request->validated());
+        $location = Location::create($this->payloadWithDenahPath($request->validated(), $request->file('denah_image')));
 
         return redirect()
             ->route('web.locations.show', $location)
@@ -66,7 +70,12 @@ class LocationController extends Controller
 
     public function update(UpdateLocationRequest $request, Location $location): RedirectResponse
     {
-        $location->update($request->validated());
+        $oldDenahPath = $location->denah_image_path;
+        $location->update($this->payloadWithDenahPath($request->validated(), $request->file('denah_image')));
+
+        if ($request->hasFile('denah_image')) {
+            $this->deleteStoredDenah($oldDenahPath);
+        }
 
         return redirect()
             ->route('web.locations.show', $location)
@@ -83,6 +92,7 @@ class LocationController extends Controller
                 ->with('status_type', 'error');
         }
 
+        $this->deleteStoredDenah($location->denah_image_path);
         $location->delete();
 
         return redirect()
@@ -113,5 +123,29 @@ class LocationController extends Controller
             ->filter(fn (Location $location) => $this->deletionGuard->isBlocked($location))
             ->map(fn (Location $location) => $location->id)
             ->all();
+    }
+
+    /**
+     * @param  array<string, mixed>  $validated
+     * @return array<string, mixed>
+     */
+    private function payloadWithDenahPath(array $validated, ?UploadedFile $denahImage): array
+    {
+        unset($validated['denah_image']);
+
+        if ($denahImage) {
+            $validated['denah_image_path'] = $denahImage->store(self::DENAHPATH_DIRECTORY, 'public');
+        }
+
+        return $validated;
+    }
+
+    private function deleteStoredDenah(?string $denahImagePath): void
+    {
+        if (! $denahImagePath) {
+            return;
+        }
+
+        Storage::disk('public')->delete($denahImagePath);
     }
 }
