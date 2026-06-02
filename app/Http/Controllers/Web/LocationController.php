@@ -9,16 +9,14 @@ use App\Models\Location;
 use App\Models\LocationMap;
 use App\Services\LocationDeletionGuard;
 use Illuminate\Contracts\View\View;
+use Illuminate\Http\Response;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Pagination\LengthAwarePaginator;
 use Illuminate\Support\Collection;
-use Illuminate\Support\Facades\Storage;
 
 class LocationController extends Controller
 {
-    private const DENAHPATH_DIRECTORY = 'denah-locations';
-
     public function __construct(private readonly LocationDeletionGuard $deletionGuard)
     {
     }
@@ -63,6 +61,16 @@ class LocationController extends Controller
         ]);
     }
 
+    public function denah(Location $location): Response
+    {
+        abort_unless($location->hasDenahImage(), 404);
+
+        return response($location->denah_image_data, 200, [
+            'Content-Type' => $location->denah_image_mime_type,
+            'Cache-Control' => 'private, max-age=3600',
+        ]);
+    }
+
     public function edit(Location $location): View
     {
         return view('locations.edit', $this->formViewData($location));
@@ -70,12 +78,7 @@ class LocationController extends Controller
 
     public function update(UpdateLocationRequest $request, Location $location): RedirectResponse
     {
-        $oldDenahPath = $location->denah_image_path;
         $location->update($this->payloadWithDenahPath($request->validated(), $request->file('denah_image')));
-
-        if ($request->hasFile('denah_image')) {
-            $this->deleteStoredDenah($oldDenahPath);
-        }
 
         return redirect()
             ->route('web.locations.show', $location)
@@ -92,7 +95,6 @@ class LocationController extends Controller
                 ->with('status_type', 'error');
         }
 
-        $this->deleteStoredDenah($location->denah_image_path);
         $location->delete();
 
         return redirect()
@@ -134,18 +136,10 @@ class LocationController extends Controller
         unset($validated['denah_image']);
 
         if ($denahImage) {
-            $validated['denah_image_path'] = $denahImage->store(self::DENAHPATH_DIRECTORY, 'public');
+            $validated['denah_image_data'] = file_get_contents($denahImage->getRealPath());
+            $validated['denah_image_mime_type'] = $denahImage->getMimeType() ?: 'application/octet-stream';
         }
 
         return $validated;
-    }
-
-    private function deleteStoredDenah(?string $denahImagePath): void
-    {
-        if (! $denahImagePath) {
-            return;
-        }
-
-        Storage::disk('public')->delete($denahImagePath);
     }
 }

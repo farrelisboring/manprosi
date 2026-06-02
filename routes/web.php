@@ -90,5 +90,6 @@ Route::middleware(['auth', 'role:'.UserRole::Staff->value.','.UserRole::Manager-
     Route::get('/damage-reports/{damageReport}', [DamageReportController::class, 'show'])->name('web.damage-reports.show');
     Route::get('/assets/{asset}', [AssetController::class, 'show'])->name('web.assets.show');
     Route::get('/location-maps/{locationMap}', [LocationMapController::class, 'show'])->name('web.location-maps.show');
+    Route::get('/locations/{location}/denah', [LocationController::class, 'denah'])->name('web.locations.denah');
     Route::get('/locations/{location}', [LocationController::class, 'show'])->name('web.locations.show');
 });

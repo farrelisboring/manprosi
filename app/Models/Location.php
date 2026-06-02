@@ -10,7 +10,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
-#[Fillable(['parent_id', 'location_map_id', 'code', 'name', 'type', 'floor_number', 'description', 'denah_image_path', 'is_active'])]
+#[Fillable(['parent_id', 'location_map_id', 'code', 'name', 'type', 'floor_number', 'description', 'denah_image_data', 'denah_image_mime_type', 'is_active'])]
 class Location extends Model
 {
     use HasFactory, SoftDeletes;
@@ -91,5 +91,10 @@ class Location extends Model
     public function scopeOnFloor(Builder $query, int $floorNumber): Builder
     {
         return $query->where('floor_number', $floorNumber);
+    }
+
+    public function hasDenahImage(): bool
+    {
+        return $this->denah_image_data !== null && $this->denah_image_mime_type !== null;
     }
 }

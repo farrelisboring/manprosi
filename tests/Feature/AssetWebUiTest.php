@@ -285,6 +285,10 @@ class AssetWebUiTest extends TestCase
     {
         $category = $this->createCategory();
         $location = $this->createLocation('LOC-WEB-040', 'Ward F');
+        $location->update([
+            'denah_image_data' => $this->fakePngBytes(),
+            'denah_image_mime_type' => 'image/png',
+        ]);
         $map = $this->createMap($location, 'Ward F Map');
         $asset = Asset::create([
             'asset_code' => 'AST-WEB-040',
@@ -307,6 +311,7 @@ class AssetWebUiTest extends TestCase
             ->assertSee('data-qr-download-link', false)
             ->assertSee('Download QR image')
             ->assertSee(route('web.qr-labels.redirect', $asset->qr_code_value), false)
+            ->assertSee(route('web.locations.denah', $location), false)
             ->assertDontSee('Barcode value')
             ->assertDontSee('Printable code')
             ->assertDontSee('Map placement ready');
@@ -428,5 +433,10 @@ class AssetWebUiTest extends TestCase
             'image_width' => 1200,
             'image_height' => 800,
         ]);
+    }
+
+    private function fakePngBytes(): string
+    {
+        return base64_decode('iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mP8/x8AAusB9WnR0P8AAAAASUVORK5CYII=', true);
     }
 }
