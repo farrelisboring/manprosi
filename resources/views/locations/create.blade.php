@@ -1,24 +1,23 @@
 @extends('layouts.app')
 
 @section('title', 'New Location | Hospital Asset Manager')
+@section('page-eyebrow', 'Informasi Ruangan')
+@section('page-heading', 'Ruangan Baru')
+
+@section('page-actions')
+    <a class="rounded-full border border-slate-200 px-5 py-3 text-sm font-semibold text-slate-700 transition hover:border-slate-300 hover:text-slate-950" href="{{ route('web.locations.index') }}">Kembali ke Ruangan</a>
+@endsection
 
 @section('content')
-    <section class="flex flex-col gap-3 lg:flex-row lg:items-end lg:justify-between">
-        <div>
-            <p class="text-sm font-medium text-amber-700">Informasi Ruangan</p>
-            <h1 class="text-3xl font-semibold text-gray-950">Ruangan Baru</h1>
-        </div>
-
-        
+    <section class="rounded-[28px] border border-slate-200 bg-white px-6 py-5 shadow-sm">
+        <p class="text-sm text-slate-600">Tambahkan ruangan baru beserta gedung, lantai, status aktif, dan denah jika sudah tersedia.</p>
     </section>
 
-    <section class="mt-8 rounded-lg border border-gray-200 bg-white p-6 shadow-sm">
-        <form action="{{ route('web.locations.store') }}" enctype="multipart/form-data" method="POST">
-            @include('locations._form', [
-                'location' => $location,
-                'submitLabel' => 'Simpan Ruangan',
-                'cancelUrl' => route('web.locations.index'),
-            ])
-        </form>
-    </section>
+    <form action="{{ route('web.locations.store') }}" enctype="multipart/form-data" method="POST">
+        @include('locations._form', [
+            'location' => $location,
+            'submitLabel' => 'Simpan Ruangan',
+            'cancelUrl' => route('web.locations.index'),
+        ])
+    </form>
 @endsection

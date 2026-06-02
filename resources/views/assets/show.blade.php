@@ -85,12 +85,12 @@
                     <div>
                         <p class="text-xs font-medium uppercase tracking-wide text-gray-500">Denah Ruangan</p>
                         <div class="mt-3">
-                            @if ($asset->currentLocation?->denah_image_path)
+                            @if ($asset->currentLocation?->hasDenahImage())
                                 <div class="overflow-hidden rounded-xl border border-gray-200 bg-gray-50">
                                     <img
                                         alt="Denah {{ $asset->currentLocation->name }}"
                                         class="max-h-[24rem] w-full object-contain"
-                                        src="{{ '/storage/'.ltrim($asset->currentLocation->denah_image_path, '/') }}"
+                                        src="{{ route('web.locations.denah', $asset->currentLocation) }}"
                                     >
                                 </div>
                             @else

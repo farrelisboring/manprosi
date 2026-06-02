@@ -9,7 +9,6 @@ use App\Models\Location;
 use App\Models\LocationMap;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Http\UploadedFile;
-use Illuminate\Support\Facades\Storage;
 use Tests\TestCase;
 
 class LocationWebUiTest extends TestCase
@@ -22,7 +21,6 @@ class LocationWebUiTest extends TestCase
 
         $this->withoutVite();
         $this->signInAsRole(UserRole::Manager);
-        Storage::fake('public');
     }
 
     public function test_location_pages_load(): void
@@ -56,7 +54,8 @@ class LocationWebUiTest extends TestCase
     {
         $gedung = $this->createGedung('Gedung A');
         $otherGedung = $this->createGedung('Gedung B');
-        $denah = UploadedFile::fake()->create('denah-awal.png', 120, 'image/png');
+        $initialDenahBytes = $this->fakePngBytes();
+        $denah = UploadedFile::fake()->createWithContent('denah-awal.png', $initialDenahBytes);
 
         $this->post('/locations', [
             'location_map_id' => $gedung->id,
@@ -76,11 +75,12 @@ class LocationWebUiTest extends TestCase
         $this->assertSame('Building', $location->type);
         $this->assertSame(4, $location->floor_number);
         $this->assertTrue($location->is_active);
-        $this->assertNotNull($location->denah_image_path);
-        Storage::disk('public')->assertExists($location->denah_image_path);
+        $this->assertSame('image/png', $location->denah_image_mime_type);
+        $this->assertSame($initialDenahBytes, $location->denah_image_data);
 
-        $oldDenahPath = $location->denah_image_path;
-        $newDenah = UploadedFile::fake()->create('denah-baru.png', 120, 'image/png');
+        $oldDenahData = $location->denah_image_data;
+        $newDenahBytes = $this->fakePngBytes('second');
+        $newDenah = UploadedFile::fake()->createWithContent('denah-baru.png', $newDenahBytes);
 
         $this->put('/locations/'.$location->id, [
             'location_map_id' => $otherGedung->id,
@@ -100,16 +100,17 @@ class LocationWebUiTest extends TestCase
         $this->assertSame('Lab', $location->type);
         $this->assertSame(5, $location->floor_number);
         $this->assertFalse($location->is_active);
-        $this->assertNotSame($oldDenahPath, $location->denah_image_path);
-        Storage::disk('public')->assertMissing($oldDenahPath);
-        Storage::disk('public')->assertExists($location->denah_image_path);
+        $this->assertNotSame($oldDenahData, $location->denah_image_data);
+        $this->assertSame('image/png', $location->denah_image_mime_type);
+        $this->assertSame($newDenahBytes, $location->denah_image_data);
     }
 
     public function test_location_delete_succeeds_when_no_related_rows_exist(): void
     {
         $location = $this->createLocation('LOC-UI-020', 'Archive Room');
         $location->update([
-            'denah_image_path' => UploadedFile::fake()->create('denah-hapus.png', 120, 'image/png')->store('denah-locations', 'public'),
+            'denah_image_data' => $this->fakePngBytes('delete'),
+            'denah_image_mime_type' => 'image/png',
         ]);
 
         $this->delete('/locations/'.$location->id)
@@ -118,7 +119,6 @@ class LocationWebUiTest extends TestCase
         $this->assertSoftDeleted('locations', [
             'id' => $location->id,
         ]);
-        Storage::disk('public')->assertMissing($location->denah_image_path);
     }
 
     public function test_location_delete_is_not_blocked_by_a_linked_gedung(): void
@@ -160,6 +160,29 @@ class LocationWebUiTest extends TestCase
         ]);
     }
 
+    public function test_denah_route_returns_image_content_when_present(): void
+    {
+        $bytes = $this->fakePngBytes('route');
+        $location = $this->createLocation('LOC-UI-050', 'Denah Route Room');
+        $location->update([
+            'denah_image_data' => $bytes,
+            'denah_image_mime_type' => 'image/png',
+        ]);
+
+        $this->get('/locations/'.$location->id.'/denah')
+            ->assertOk()
+            ->assertHeader('Content-Type', 'image/png')
+            ->assertContent($bytes);
+    }
+
+    public function test_denah_route_returns_not_found_when_image_is_missing(): void
+    {
+        $location = $this->createLocation('LOC-UI-051', 'No Denah Room');
+
+        $this->get('/locations/'.$location->id.'/denah')
+            ->assertNotFound();
+    }
+
     private function createLocation(
         string $code,
         string $name,
@@ -184,5 +207,17 @@ class LocationWebUiTest extends TestCase
             'name' => $name,
             'notes' => 'Catatan uji.',
         ]);
+    }
+
+    private function fakePngBytes(string $seed = 'base'): string
+    {
+        $base64BySeed = [
+            'base' => 'iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mP8/x8AAusB9WnR0P8AAAAASUVORK5CYII=',
+            'second' => 'iVBORw0KGgoAAAANSUhEUgAAAAIAAAACCAQAAAD8fJRsAAAAD0lEQVR42mNk+M/QwMAAAAMBAQAYgmWQAAAAAElFTkSuQmCC',
+            'delete' => 'iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNk+A8AAQUBAScbJx0AAAAASUVORK5CYII=',
+            'route' => 'iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mP4zwAAAgEBAQot6QAAAABJRU5ErkJggg==',
+        ];
+
+        return base64_decode($base64BySeed[$seed], true);
     }
 }

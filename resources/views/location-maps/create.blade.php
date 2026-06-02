@@ -1,24 +1,23 @@
 @extends('layouts.app')
 
 @section('title', 'New Location Map | Hospital Asset Manager')
+@section('page-eyebrow', 'Informasi Gedung')
+@section('page-heading', 'Tambahkan Gedung')
+
+@section('page-actions')
+    <a class="rounded-full border border-slate-200 px-5 py-3 text-sm font-semibold text-slate-700 transition hover:border-slate-300 hover:text-slate-950" href="{{ route('web.location-maps.index') }}">Kembali ke Gedung</a>
+@endsection
 
 @section('content')
-    <section class="flex flex-col gap-3 lg:flex-row lg:items-end lg:justify-between">
-        <div>
-            <p class="text-sm font-medium text-cyan-700">Informasi Gedung</p>
-            <h1 class="text-3xl font-semibold text-gray-950">Tambahkan Gedung</h1>
-        </div>
-
-        <a class="rounded-md border border-gray-300 px-4 py-2 text-sm font-medium text-gray-700 hover:border-gray-400 hover:text-gray-950" href="{{ route('web.location-maps.index') }}">Back to maps</a>
+    <section class="rounded-[28px] border border-slate-200 bg-white px-6 py-5 shadow-sm">
+        <p class="text-sm text-slate-600">Simpan data gedung utama agar ruangan bisa ditautkan ke lokasi bangunan yang tepat.</p>
     </section>
 
-    <section class="mt-8 rounded-lg border border-gray-200 bg-white p-6 shadow-sm">
-        <form action="{{ route('web.location-maps.store') }}" method="POST">
-            @include('location-maps._form', [
-                'locationMap' => $locationMap,
-                'submitLabel' => 'Simpan Gedung',
-                'cancelUrl' => route('web.location-maps.index'),
-            ])
-        </form>
-    </section>
+    <form action="{{ route('web.location-maps.store') }}" method="POST">
+        @include('location-maps._form', [
+            'locationMap' => $locationMap,
+            'submitLabel' => 'Simpan Gedung',
+            'cancelUrl' => route('web.location-maps.index'),
+        ])
+    </form>
 @endsection
