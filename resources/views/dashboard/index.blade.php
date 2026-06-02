@@ -11,13 +11,20 @@
     <a class="rounded-full bg-slate-950 px-5 py-3 text-sm font-semibold text-white transition hover:bg-slate-800" href="{{ route('web.assets.create') }}">
         Tambah Aset
     </a>
+    
+    <form action="{{ route('logout') }}" method="POST" class="inline-block ml-2">
+        @csrf
+        <button type="submit" class="rounded-full border border-red-200 bg-red-50 px-5 py-3 text-sm font-semibold text-red-600 transition hover:bg-red-100 hover:text-red-700 flex items-center gap-2">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"></path></svg>
+            Logout
+        </button>
+    </form>
 @endsection
 
 @section('content')
     <section class="grid gap-6 xl:grid-cols-[1.25fr_0.95fr]">
         <article class="rounded-[28px] bg-[#33457f] px-7 py-7 text-white shadow-[0_18px_50px_rgba(51,69,127,0.28)] lg:px-8 lg:py-8">
             <p class="text-sm font-semibold uppercase tracking-[0.2em] text-white/65">Ringkasan Hari Ini</p>
-
 
             <div class="mt-8 grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
                 <article class="rounded-[24px] bg-white/10 p-5 ring-1 ring-white/10 backdrop-blur-sm">
