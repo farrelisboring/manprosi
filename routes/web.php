@@ -18,6 +18,21 @@ use App\Http\Controllers\Web\RepairUpdateController;
 use App\Services\QrCodeValueGenerator;
 use Illuminate\Support\Facades\Route;
 
+
+Route::get('/debug-manifest', function () {
+    $path = public_path('build/manifest.json');
+
+    return response()->json([
+        'exists' => file_exists($path),
+        'path' => $path,
+        'md5' => file_exists($path) ? md5_file($path) : null,
+        'manifest' => file_exists($path)
+            ? json_decode(file_get_contents($path), true)
+            : null,
+    ]);
+});
+
+
 Route::middleware('guest')->group(function (): void {
     Route::get('/login', [AuthenticatedSessionController::class, 'create'])->name('login');
     Route::post('/login', [AuthenticatedSessionController::class, 'store'])->name('login.store');
