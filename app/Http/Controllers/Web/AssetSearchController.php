@@ -16,7 +16,7 @@ class AssetSearchController extends Controller
 {
     public function __invoke(Request $request): View
     {
-        $hasSearch = filled($request->string('search')->toString());
+        $hasSearch = $request->hasAny(['search', 'category_id', 'current_location_id', 'status']);
 
         return view('assets.search', [
             'searchTerm' => $request->string('search')->toString(),

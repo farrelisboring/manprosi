@@ -94,6 +94,10 @@
                             <button class="w-full rounded-2xl bg-[#4b61af] px-6 py-4 text-3xl font-black tracking-tight text-white transition hover:bg-[#3f5399]" type="submit">
                                 Login
                             </button>
+
+                            <div class="mt-6 text-center text-sm text-slate-600">
+                                Belum punya akun? <a href="{{ route('register') }}" class="font-bold text-[#4b61af] hover:underline">Daftar di sini</a>
+                            </div>
                         </form>
                     </div>
                 </section>
