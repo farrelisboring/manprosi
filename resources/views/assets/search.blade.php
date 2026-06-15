@@ -75,8 +75,10 @@
                 <div>
                     <h2 class="text-lg font-semibold text-gray-950">Hasil Pencarian</h2>
                     <p class="text-sm text-gray-600">
-                        {{ number_format($assets->total()) }} hasil untuk
-                        <span class="font-medium text-gray-950">"{{ $searchTerm }}"</span>.
+                        {{ number_format($assets->total()) }} hasil ditemukan
+                        @if($searchTerm)
+                            untuk <span class="font-medium text-gray-950">"{{ $searchTerm }}"</span>
+                        @endif
                     </p>
                 </div>
             </div>
@@ -128,7 +130,7 @@
                         </tr>
                     @empty
                         <tr>
-                            <td class="px-4 py-10 text-center text-gray-600" colspan="6">Tidak ada aset yang cocok dengan "{{ $searchTerm }}" untuk filter saat ini.</td>
+                            <td class="px-4 py-10 text-center text-gray-600" colspan="6">Tidak ada aset yang cocok untuk filter saat ini.</td>
                         </tr>
                     @endforelse
                 </tbody>
