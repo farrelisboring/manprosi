@@ -1,5 +1,9 @@
 # AGENTS.md
 
+## High-level overview
+
+Proyek ini adalah aplikasi pelacakan aset rumah sakit sederhana yang dibangun dengan Laravel 13. Proyek ini menyediakan API backend untuk manajemen aset (CRUD), pembuatan dan pengelolaan label QR, pencatatan riwayat pemindahan aset, serta pelaporan kerusakan. Fokus milestone ini adalah pada desain skema basis data, model Eloquent, dan API; antarmuka pengguna masih berupa scaffold dasar.
+
 ## Project Snapshot
 
 Laravel 13 app for a homework-scale hospital asset-tracking system. The database schema, Eloquent domain model layer, asset CRUD REST API, QR label REST API, asset movement history REST API, and damage report REST API are now in place, while browser-facing views are still mostly stock scaffold.
